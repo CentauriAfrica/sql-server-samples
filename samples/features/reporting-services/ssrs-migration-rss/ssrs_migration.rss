@@ -193,6 +193,7 @@ Sub Main()
 	Dim timeout As Integer = RsSrc.Timeout
 	RsSrc.Timeout = 600000 '10 minutes
 	srcItems = RsSrc.ListChildren(GetSrcFolderPath(), True) 'Possible catalog item types: Model, Dataset, Component, Resource, DataSource, Folder, Report
+	Array.Sort(srcItems, New Comparison(Of CatalogItem)(AddressOf SortParentFoldersFirst))
 	RsSrc.Timeout = timeout
 	
 	For Each ci As CatalogItem In srcItems
@@ -656,12 +657,34 @@ Sub MigrateReportSubscriptions(snkReport As CatalogItem, srcReport As CatalogIte
 				RsSrc.GetDataDrivenSubscriptionProperties(srcSub.SubscriptionID, extensionSettings, dataRetrievalPlan, description, active, status, eventType, matchData, parameters)				
 				If extensionSettings.Extension = "Report Server FileShare" Then
 					Dim newParameterValues() As [ParameterValueOrFieldReference] = New [ParameterValueOrFieldReference](extensionSettings.ParameterValues.Length) {}
-					Array.Copy(extensionSettings.ParameterValues, newParameterValues, extensionSettings.ParameterValues.Length)	
-					Dim pwdParameterValue As ParameterValue = New ParameterValue
-					pwdParameterValue.Label = "PASSWORD"
-					pwdParameterValue.Name = "PASSWORD"
-					pwdParameterValue.Value = "PASSWORD"
-					newParameterValues(extensionSettings.ParameterValues.Length) = pwdParameterValue
+					Dim passwordParamFound As Boolean = False
+					Array.Copy(extensionSettings.ParameterValues, newParameterValues, extensionSettings.ParameterValues.Length)
+					For Each pvofr As ParameterValueOrFieldReference In extensionSettings.ParameterValues
+						If TypeOf pvofr Is ParameterValue Then
+							Dim pv As ParameterValue = pvofr
+							If pv.Name.Contains("PASSWORD") Then
+								'Subscription has Password field linked to dataset field
+								passwordParamFound = True
+								Exit For
+							End If
+						Else If TypeOf pvofr Is ParameterFieldReference Then
+							Dim pfr As ParameterFieldReference = pvofr
+							If pfr.ParameterName.Contains("PASSWORD") Then
+								'Subscription has Password field linked to dataset field
+								passwordParamFound = True
+								Exit For
+							End If
+						End If
+					Next
+					If not passwordParamFound Then
+						'Subscription has Password field set to "Leave blank" or "Enter value"
+						Dim pwdParameterValue As ParameterValue = New ParameterValue
+						pwdParameterValue.Label = "PASSWORD"
+						pwdParameterValue.Name = "PASSWORD"
+						pwdParameterValue.Value = "PASSWORD"
+						newParameterValues(extensionSettings.ParameterValues.Length) = pwdParameterValue		
+					End If
+
 					extensionSettings.ParameterValues = newParameterValues					
 				End If
 						
@@ -688,7 +711,8 @@ Sub MigrateReportSubscriptions(snkReport As CatalogItem, srcReport As CatalogIte
 				RsSrc.GetSubscriptionProperties(srcSub.SubscriptionID, extensionSettings, description, active, status, eventType, matchData, parameters)
 				If extensionSettings.Extension = "Report Server FileShare" Then
 					Dim newParameterValues() As [ParameterValueOrFieldReference] = New [ParameterValueOrFieldReference](extensionSettings.ParameterValues.Length) {}
-					Array.Copy(extensionSettings.ParameterValues, newParameterValues, extensionSettings.ParameterValues.Length)	
+					Array.Copy(extensionSettings.ParameterValues, newParameterValues, extensionSettings.ParameterValues.Length)
+					'Standard subscriptions will always require adding PASSWORD parameter during migration
 					Dim pwdParameterValue As ParameterValue = New ParameterValue
 					pwdParameterValue.Label = "PASSWORD"
 					pwdParameterValue.Name = "PASSWORD"
@@ -1068,3 +1092,15 @@ Sub WriteSuccess()
 	Console.WriteLine(" ... SUCCESS")
 	Console.ResetColor()
 End Sub
+
+Function SortParentFoldersFirst(first As CatalogItem, second As CatalogItem) As Integer
+	If first.TypeName = "Folder" And second.TypeName <> "Folder" Then
+		Return -1
+	ElseIf first.TypeName <> "Folder" And second.TypeName = "Folder" Then
+		Return 1
+	ElseIf first.TypeName <> "Folder" And second.TypeName <> "Folder" Then
+		Return 0
+	Else
+		Return String.Compare(first.Path, second.Path)
+	End If
+End Function

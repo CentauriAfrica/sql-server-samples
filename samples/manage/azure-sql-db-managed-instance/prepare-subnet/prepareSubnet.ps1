@@ -846,13 +846,6 @@ function VerifyRouteTable {
 }
 
 
-function PrepareServiceEndpoints
-{
-    param($subnet)
-    Write-Host "Removing service endpoints."
-    $subnet.ServiceEndpoints.Clear()
-}
-
 function PrepareServiceDelegation
 {
     param($subnet)
@@ -1030,10 +1023,6 @@ If($isValid -ne $true)
 
     If ($applyChanges) 
     { 
-        If($isOkServiceEndpoints -ne $true)
-        {
-            PrepareServiceEndpoints $subnet
-        }
             
         If($isOkNSG -ne $true)
         {

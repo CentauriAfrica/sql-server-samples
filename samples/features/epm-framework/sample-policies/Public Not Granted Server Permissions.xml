@@ -101,7 +101,7 @@
                       <DMF:Enabled type="boolean">false</DMF:Enabled>
                       <DMF:AutomatedPolicyEvaluationMode type="AutomatedPolicyEvaluationMode">None</DMF:AutomatedPolicyEvaluationMode>
                       <DMF:HelpText type="string" />
-                      <DMF:HelpLink type="string">http://go.microsoft.com/fwlink/?LinkId=116364</DMF:HelpLink>
+                      <DMF:HelpLink type="string">https://docs.microsoft.com/en-us/sql/relational-databases/policy-based-management/guest-permissions-on-user-databases</DMF:HelpLink>
                       <DMF:ActiveEndDate type="dateTime">0001-01-01T00:00:00</DMF:ActiveEndDate>
                       <DMF:ActiveStartDate type="dateTime">0001-01-01T00:00:00</DMF:ActiveStartDate>
                     </DMF:Policy>

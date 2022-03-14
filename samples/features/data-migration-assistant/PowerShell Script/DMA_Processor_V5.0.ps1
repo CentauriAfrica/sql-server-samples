@@ -84,7 +84,7 @@ param(
         $col2 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "InstanceName", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(50))
         $col3 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "Status", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(30))
         $col4 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "Name", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(255))
-        $col5 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "SizeMB", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(30))
+        $col5 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "SizeMB", [Microsoft.SqlServer.Management.Smo.DataType]::Decimal(6, 38))
         $col6 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "SourceCompatibilityLevel", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(15))
         $col7 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "TargetCompatibilityLevel", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(15))
         $col8 = New-Object Microsoft.SqlServer.Management.Smo.Column($ReportDatatbl, "Category", [Microsoft.SqlServer.Management.Smo.DataType]::VarChar(30))
@@ -726,7 +726,7 @@ INSERT INTO BreakingChangeWeighting VALUES ('Microsoft.Rules.Data.Upgrade.UR0000
         $datatable.columns.add("InstanceName",[String]) | Out-Null
         $datatable.columns.add("Status",[String]) | Out-Null
         $datatable.columns.add("Name",[String]) | Out-Null
-        $datatable.columns.add("SizeMB",[String]) | Out-Null
+        $datatable.columns.add("SizeMB",[Decimal]) | Out-Null
         $datatable.columns.add("SourceCompatibilityLevel",[String]) | Out-Null
         $datatable.columns.add("TargetCompatibilityLevel",[String]) | Out-Null
         $datatable.columns.add("Category",[String]) | Out-Null
@@ -826,9 +826,9 @@ INSERT INTO BreakingChangeWeighting VALUES ('Microsoft.Rules.Data.Upgrade.UR0000
             {
                 foreach($assessment in $serverInstances.AssessmentRecommendations) #level 3, the assessment
                 {
-                    $assessment.ImpactedDatabases = if ($assessment.ImpactedDatabases.Length -eq 0) {$blankImpactedDatabases} else {$assessment.ImpactedDatabases}
+                    $impactedDatabases = if (($assessment.ImpactedDatabases -eq $null) -or ($assessment.ImpactedDatabases.Length -eq 0)) {$blankImpactedDatabases} else {$assessment.ImpactedDatabases}
                         
-                    foreach($impacteddbs in $assessment.ImpactedDatabases) #level 4, the impacted objects
+                    foreach($impacteddbs in $impactedDatabases) #level 4, the impacted objects
                     {                       
                         #TODO Get date here will eventually be replace with timestamp from JSON file
                         $azuredatatable.rows.add((Get-Date).toString(), $serverInstances.ServerName, $serverInstances.Version, $serverInstances.Status, $assessment.Category, $assessment.Severity, $assessment.FeatureParityCategory, $assessment.RuleId, $assessment.Title, $assessment.Impact, $assessment.Recommendation, $assessment.MoreInfo, $impacteddbs.Name, $impacteddbs.ObjectType, $impacteddbs.ImpactDetail) | Out-Null

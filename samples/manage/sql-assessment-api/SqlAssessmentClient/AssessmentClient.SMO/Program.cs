@@ -32,7 +32,7 @@
             while (Prompt(out string? line))
             {
                 // Use GetAssessmentResultsList to run assessment
-                List<IAssessmentResult> assessmentResults = string.IsNullOrWhiteSpace(line) 
+                List<IAssessmentResult> assessmentResults = string.IsNullOrWhiteSpace(line)
                     ? await target.GetAssessmentResultsList().ConfigureAwait(false)              // all checks
                     : await target.GetAssessmentResultsList(line.Split()).ConfigureAwait(false); // selected checks
 

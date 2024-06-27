@@ -1,5 +1,5 @@
 SELECT
-t.[commit_time] AS [CommitTime] 
+t.[commit_time] AS [CommitTime]
 , t.[principal_name] AS [UserName]
 , l.EmployeeId
 , l.[SSN]

@@ -7,7 +7,7 @@ class ConfigurationConstants(object):
     CONFIG_HSM_SETTINGS_FILE = "configuration.ini"
 
     """
-    Configuration section name where environment variables 
+    Configuration section name where environment variables
     to be loaded before application execution are defined.
     """
     CONFIG_SECTION_ENVIRONMENT_VARIABLE = "EnvironmentVariables"
@@ -18,7 +18,7 @@ class ConfigurationConstants(object):
 
 class Operations(object):
     """
-    Operations supported by the application. These are the operations 
+    Operations supported by the application. These are the operations
     that the Big Data Cluster control plane will invoke.
     """
     OPERATION_ENCRYPT='encrypt'

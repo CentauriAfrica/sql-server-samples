@@ -36,7 +36,7 @@ az account set --subscription $subscription
 
 #Create Azure Resource Group
 az group create -n $RESOURCE_GROUP -l $REGION_NAME
- 
+
 #Create Azure Virtual Network to host your AKS cluster
 az network vnet create \
     --resource-group $RESOURCE_GROUP \
@@ -45,7 +45,7 @@ az network vnet create \
     --address-prefixes 10.0.0.0/8 \
     --subnet-name $SUBNET_NAME \
     --subnet-prefix 10.1.0.0/16
- 
+
 
 SUBNET_ID=$(az network vnet subnet show \
     --resource-group $RESOURCE_GROUP \
@@ -64,24 +64,24 @@ az network vnet subnet create \
     --name AzureFirewallSubnet \
     --address-prefix 10.3.0.0/24
 
-#Create Azure firewall 
+#Create Azure firewall
 az network firewall create -g $RESOURCE_GROUP -n $FWNAME -l $REGION_NAME --enable-dns-proxy true
 
-#Create public IP for Azure Firewall 
+#Create public IP for Azure Firewall
 az network public-ip create -g $RESOURCE_GROUP -n $FWPUBIP -l $REGION_NAME --sku "Standard"
 
-#Create IP configurations for Azure Firewall 
+#Create IP configurations for Azure Firewall
 az network firewall ip-config create -g $RESOURCE_GROUP -f $FWNAME -n $FWIPCONFIG_NAME --public-ip-address $FWPUBIP --vnet-name $VNET_NAME
 
 
-#Getting public and private IP addresses for Azure Firewall 
+#Getting public and private IP addresses for Azure Firewall
 export FWPUBLIC_IP=$(az network public-ip show -g $RESOURCE_GROUP -n $FWPUBIP --query "ipAddress" -o tsv)
 export FWPRIVATE_IP=$(az network firewall show -g $RESOURCE_GROUP -n $FWNAME --query "ipConfigurations[0].privateIpAddress" -o tsv)
 
 #Create an User defined route table
 az network route-table create -g $RESOURCE_GROUP --name $FWROUTE_TABLE_NAME
 
-#Create User defined routes 
+#Create User defined routes
 az network route-table route create -g $RESOURCE_GROUP --name $FWROUTE_NAME --route-table-name $FWROUTE_TABLE_NAME --address-prefix 0.0.0.0/0 --next-hop-type VirtualAppliance --next-hop-ip-address $FWPRIVATE_IP --subscription $SUBID
 
 az network route-table route create -g $RESOURCE_GROUP --name $FWROUTE_NAME_INTERNET --route-table-name $FWROUTE_TABLE_NAME --address-prefix $FWPUBLIC_IP/32 --next-hop-type Internet
@@ -95,7 +95,7 @@ az network firewall network-rule create -g $RESOURCE_GROUP -f $FWNAME --collecti
 #Add FW Application Rules
 az network firewall application-rule create -g $RESOURCE_GROUP -f $FWNAME --collection-name 'aksfwar' -n 'fqdn' --source-addresses '*' --protocols 'http=80' 'https=443' --fqdn-tags "AzureKubernetesService" --action allow --priority 100
 
-#Associate User defined route table (UDR) to AKS cluster where deployed BDC previsouly 
+#Associate User defined route table (UDR) to AKS cluster where deployed BDC previsouly
 az network vnet subnet update -g $RESOURCE_GROUP --vnet-name $VNET_NAME --name $SUBNET_NAME --route-table $FWROUTE_TABLE_NAME
 
 

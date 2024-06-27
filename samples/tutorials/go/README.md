@@ -6,7 +6,7 @@ products:
 - azure-sql-database	
 ---
 
-# Set up instructions 
+# Set up instructions
 
 1. `go get github.com/denisenkom/go-mssqldb`
 1. `go install github.com/denisenkom/go-mssqldb`

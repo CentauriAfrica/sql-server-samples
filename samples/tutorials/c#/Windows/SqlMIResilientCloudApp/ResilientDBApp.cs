@@ -128,7 +128,7 @@ namespace ResilientDBApp
 		// Connects to the database, executes query
 		static public void AccessDatabase(string sqltext, string instance, bool read)
 		{
-			//throw new TestSqlException(4060); //(7654321);  // Uncomment for testing.  
+			//throw new TestSqlException(4060); //(7654321);  // Uncomment for testing.
 
 			using (var sqlConnection = new QC.SqlConnection
 				(GetSqlConnectionString(instance)))
@@ -161,20 +161,20 @@ namespace ResilientDBApp
 		// OR manuall edit the four string values - DataSource, InitialCatalog, UserID, Password with your SQL MI connection details
 		static private string GetSqlConnectionString(string instance)
 		{
-			// Prepare the connection string to Azure SQL Database.  
+			// Prepare the connection string to Azure SQL Database.
 			var sqlConnectionSB = new QC.SqlConnectionStringBuilder();
 
-			// Change these values to your values.  
-			sqlConnectionSB.DataSource = ConfigurationManager.AppSettings.Get(instance + ".server"); // Server  
-			sqlConnectionSB.InitialCatalog = ConfigurationManager.AppSettings.Get(instance + ".database"); // Database  
+			// Change these values to your values.
+			sqlConnectionSB.DataSource = ConfigurationManager.AppSettings.Get(instance + ".server"); // Server
+			sqlConnectionSB.InitialCatalog = ConfigurationManager.AppSettings.Get(instance + ".database"); // Database
 			sqlConnectionSB.UserID = ConfigurationManager.AppSettings.Get(instance + ".username");
 			sqlConnectionSB.Password = ConfigurationManager.AppSettings.Get(instance + ".pass");
 			
-			// Adjust these values if you like. (ADO.NET 4.5.1 or later.)  
+			// Adjust these values if you like. (ADO.NET 4.5.1 or later.)
 			sqlConnectionSB.ConnectRetryCount = 3;
-			sqlConnectionSB.ConnectRetryInterval = 10;  // Seconds.  
+			sqlConnectionSB.ConnectRetryInterval = 10;  // Seconds.
 
-			// Leave these values as they are.  
+			// Leave these values as they are.
 			sqlConnectionSB.IntegratedSecurity = false;
 			sqlConnectionSB.Encrypt = true;
 			sqlConnectionSB.ConnectTimeout = 30;

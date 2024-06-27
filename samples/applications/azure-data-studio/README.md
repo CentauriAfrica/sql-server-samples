@@ -49,7 +49,7 @@ For Parameterization.ipynb Sample:
 
 ## Sample details
 
-This Notebook allows users to follow along the docs as well as use a already parameterized notebook. 
+This Notebook allows users to follow along the docs as well as use a already parameterized notebook.
 
 ## Related Links
 <!-- Links to more articles. Remember to delete "en-us" from the link path. -->

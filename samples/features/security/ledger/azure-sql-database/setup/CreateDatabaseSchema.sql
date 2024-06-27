@@ -11,11 +11,11 @@ CREATE TABLE [dbo].[Employees](
 	[LastName] [nvarchar](50) NOT NULL,
 	[Salary] [money] NOT NULL
 	)
-WITH 
+WITH
 (
   SYSTEM_VERSIONING = ON,
   LEDGER = ON
-); 
+);
 GO
 
 
@@ -36,11 +36,11 @@ WITH (LEDGER = ON (APPEND_ONLY = ON));
 GO
 
 CREATE PROCEDURE [dbo].[GetEmployeeLedgerEntries]
-AS 
+AS
 BEGIN
-	SET NOCOUNT ON 
+	SET NOCOUNT ON
 	SELECT
-	t.[commit_time] AS [CommitTime] 
+	t.[commit_time] AS [CommitTime]
 	, t.[principal_name] AS [UserName]
 	, l.EmployeeId
 	, l.[SSN]
@@ -57,9 +57,9 @@ END;
 GO
 
 CREATE PROCEDURE [dbo].[VerifyLedger]
-AS 
+AS
 BEGIN
-	SET NOCOUNT ON 
+	SET NOCOUNT ON
 	DECLARE @digest_locations NVARCHAR(MAX) = (SELECT path, last_digest_block_id, is_current FROM sys.database_ledger_digest_locations FOR JSON AUTO, INCLUDE_NULL_VALUES);
 	BEGIN TRY
        EXEC sys.sp_verify_database_ledger_from_digest_storage @digest_locations;
@@ -72,10 +72,10 @@ END;
 GO
 
 CREATE PROCEDURE [dbo].[GetLedgerVerifications]
-AS 
-SET NOCOUNT ON 
+AS
+SET NOCOUNT ON
 BEGIN
-	SELECT * 
+	SELECT *
 	FROM [dbo].[LedgerVerifications]
 	WHERE [Timestamp] > DATEADD(MINUTE, -60, SYSDATETIMEOFFSET())
 	ORDER BY [Timestamp] DESC;
@@ -83,10 +83,10 @@ END;
 GO
 
 CREATE PROCEDURE [dbo].[GetAuditEvents]
-AS 
-SET NOCOUNT ON 
+AS
+SET NOCOUNT ON
 BEGIN
-	SELECT * 
+	SELECT *
 	FROM [dbo].[AuditEvents]
 	WHERE [Timestamp] > DATEADD(MINUTE, -10, SYSDATETIMEOFFSET())
 	ORDER BY [Timestamp] DESC;

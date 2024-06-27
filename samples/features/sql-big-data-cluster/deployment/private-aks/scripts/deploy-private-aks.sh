@@ -23,13 +23,13 @@ export KUBERNETES_VERSION=$version
 export SUBNET_NAME=aks-subnet
 export VNET_NAME=bdc-vnet
 export AKS_NAME=bdcaksprivatecluster
- 
+
 #Set Azure subscription current in use
 az account set --subscription $subscription
 
 #Create Azure Resource Group
 az group create -n $RESOURCE_GROUP -l $REGION_NAME
- 
+
 #Create Azure Virtual Network to host your AKS clus
 az network vnet create \
     --resource-group $RESOURCE_GROUP \
@@ -44,7 +44,7 @@ SUBNET_ID=$(az network vnet subnet show \
     --vnet-name $VNET_NAME \
     --name $SUBNET_NAME \
     --query id -o tsv)
- 
+
 #Create AKS Cluster
 az aks create \
     --resource-group $RESOURCE_GROUP \

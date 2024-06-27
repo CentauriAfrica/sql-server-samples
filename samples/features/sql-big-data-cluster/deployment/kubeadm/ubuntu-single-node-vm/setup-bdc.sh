@@ -94,7 +94,7 @@ touch $LOG_FILE
 #
 echo ""
 echo "######################################################################################"
-echo "Starting installing packages..." 
+echo "Starting installing packages..."
 
 # Install docker.
 #
@@ -153,7 +153,7 @@ echo "Azdata has been successfully installed."
 # Load all pre-requisites for Kubernetes.
 #
 echo "###########################################################################"
-echo "Starting to setup pre-requisites for kubernetes..." 
+echo "Starting to setup pre-requisites for kubernetes..."
 
 # Setup the kubernetes preprequisites.
 #
@@ -236,13 +236,13 @@ for i in $(seq 1 $PV_COUNT); do
   mount --bind /mnt/local-storage/$vol /mnt/local-storage/$vol
 
 done
-echo "Kubernetes pre-requisites have been completed." 
+echo "Kubernetes pre-requisites have been completed."
 
 # Setup kubernetes cluster including remove taint on master.
 #
 echo ""
 echo "#############################################################################"
-echo "Starting to setup Kubernetes master..." 
+echo "Starting to setup Kubernetes master..."
 
 # Initialize a kubernetes cluster on the current node.
 #
@@ -306,7 +306,7 @@ echo "Kubernetes master setup done."
 #
 echo ""
 echo "############################################################################"
-echo "Starting to pull docker images..." 
+echo "Starting to pull docker images..."
 echo "Pulling images from repository: " $DOCKER_REGISTRY"/"$DOCKER_REPOSITORY
 
 for image in "${IMAGES[@]}";
@@ -314,13 +314,13 @@ do
     docker pull $DOCKER_REGISTRY/$DOCKER_REPOSITORY/$image:$DOCKER_TAG
     echo "Docker image" $image " pulled."
 done
-echo "Docker images pulled." 
+echo "Docker images pulled."
 
 # Deploy azdata bdc create cluster.
 #
 echo ""
 echo "############################################################################"
-echo "Starting to deploy azdata cluster..." 
+echo "Starting to deploy azdata cluster..."
 
 # Command to create cluster for single node cluster.
 #
@@ -332,7 +332,7 @@ azdata bdc config replace -c kubeadm-custom/bdc.json -j "$.spec.resources.data-0
 azdata bdc config replace -c kubeadm-custom/control.json -j "spec.storage.data.className=$STORAGE_CLASS"
 azdata bdc config replace -c kubeadm-custom/control.json -j "spec.storage.logs.className=$STORAGE_CLASS"
 azdata bdc create -c kubeadm-custom --accept-eula $ACCEPT_EULA
-echo "Big data cluster created." 
+echo "Big data cluster created."
 
 # Setting context to cluster.
 #

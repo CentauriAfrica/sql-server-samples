@@ -1,10 +1,10 @@
 -- ==============================
 -- Create Updatable Ledger Table Template
 -- Use the Specify Values for Template Parameters command (Ctrl-Shift-M) to fill in the parameter values below.
--- 
+--
 -- For more details on ledger tables please refer to MSDN documentation:
 -- https://docs.microsoft.com/azure/azure-sql/database/ledger-overview
--- 
+--
 -- To learn more how to use updatable ledger tables in your applications:
 -- https://docs.microsoft.com/azure/azure-sql/database/ledger-updatable-ledger-tables
 -- ==============================
@@ -32,7 +32,7 @@ WITH
     --Set SYSTEM_VERSIONING to ON
     SYSTEM_VERSIONING = ON
     (
-        --Option to specify the name of the ledger history table. If not supplied, the history table will be created with the 
+        --Option to specify the name of the ledger history table. If not supplied, the history table will be created with the
         --default name format: [<schema_name>].[MSSQL_LedgerHistoryFor_<ledger_table_objectid>]
         HISTORY_TABLE = [<history_table_schema_name, sysname, dbo>].[<history_table_name, sysname, sample_ledger_history>]
     ),

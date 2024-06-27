@@ -7,11 +7,11 @@ namespace SensorModule.DataStructures
   /// <inheritdoc/>
   /// <summary>
   /// Ring buffer.
-  /// 
+  ///
   /// When writing to a full buffer:
   /// PushBack -> removes this[0] / Front()
   /// PushFront -> removes this[Size-1] / Back()
-  /// 
+  ///
   /// this implementation is inspired by
   /// http://www.boost.org/doc/libs/1_53_0/libs/Ring_buffer/doc/Ring_buffer.html
   /// because I liked their interface.
@@ -42,7 +42,7 @@ namespace SensorModule.DataStructures
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RingBuffer{T}"/> class.
-    /// 
+    ///
     /// </summary>
     /// <param name='capacity'>
     /// Buffer capacity. Must be positive.
@@ -158,8 +158,8 @@ namespace SensorModule.DataStructures
     /// <summary>
     /// Pushes a new element to the back of the buffer. Back()/this[Size-1]
     /// will now return this element.
-    /// 
-    /// When the buffer is full, the element at Front()/this[0] will be 
+    ///
+    /// When the buffer is full, the element at Front()/this[0] will be
     /// popped to allow for this new element to fit.
     /// </summary>
     /// <param name="item">Item to push to the back of the buffer</param>
@@ -182,8 +182,8 @@ namespace SensorModule.DataStructures
     /// <summary>
     /// Pushes a new element to the front of the buffer. Front()/this[0]
     /// will now return this element.
-    /// 
-    /// When the buffer is full, the element at Back()/this[Size-1] will be 
+    ///
+    /// When the buffer is full, the element at Back()/this[Size-1] will be
     /// popped to allow for this new element to fit.
     /// </summary>
     /// <param name="item">Item to push to the front of the buffer</param>
@@ -204,7 +204,7 @@ namespace SensorModule.DataStructures
     }
 
     /// <summary>
-    /// Removes the element at the back of the buffer. Decreasing the 
+    /// Removes the element at the back of the buffer. Decreasing the
     /// Buffer size by 1.
     /// </summary>
     public void PopBack()
@@ -216,7 +216,7 @@ namespace SensorModule.DataStructures
     }
 
     /// <summary>
-    /// Removes the element at the front of the buffer. Decreasing the 
+    /// Removes the element at the front of the buffer. Decreasing the
     /// Buffer size by 1.
     /// </summary>
     public void PopFront()
@@ -229,7 +229,7 @@ namespace SensorModule.DataStructures
 
     /// <summary>
     /// Copies the buffer contents to an array, according to the logical
-    /// contents of the buffer (i.e. independent of the internal 
+    /// contents of the buffer (i.e. independent of the internal
     /// order/contents)
     /// </summary>
     /// <returns>A new array with a copy of the buffer contents.</returns>
@@ -315,13 +315,13 @@ namespace SensorModule.DataStructures
       return _start + (index < (Capacity - _start) ? index : index - Capacity);
     }
 
-    // doing ArrayOne and ArrayTwo methods returning ArraySegment<T> as seen here: 
+    // doing ArrayOne and ArrayTwo methods returning ArraySegment<T> as seen here:
     // http://www.boost.org/doc/libs/1_37_0/libs/Ring_buffer/doc/Ring_buffer.html#classboost_1_1Ring__buffer_1957cccdcb0c4ef7d80a34a990065818d
     // http://www.boost.org/doc/libs/1_37_0/libs/Ring_buffer/doc/Ring_buffer.html#classboost_1_1Ring__buffer_1f5081a54afbc2dfc1a7fb20329df7d5b
     // should help a lot with the code.
 
     #region Array items easy access.
-    // The array is composed by at most two non-contiguous segments, 
+    // The array is composed by at most two non-contiguous segments,
     // the next two methods allow easy access to those.
 
     private ArraySegment<T> ArrayOne()

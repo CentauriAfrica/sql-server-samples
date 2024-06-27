@@ -87,7 +87,7 @@ In this demo you will use 3 different types of users:
 
 - Rachel, who works at the HR department.
 - Alice, who is an auditor.
-- Jay, the DBA of the company. He thinks he should earn more money for the type of work he's doing :)  
+- Jay, the DBA of the company. He thinks he should earn more money for the type of work he's doing :)
 
 Jay wants to maliciously increase his salary. Because he's the DBA of the Contoso database, he thinks he can perform updates in the Employees table without anyone noticing. Unfortunately for Jay, the Employees table is an updatable ledger table, which means his change, along with his identity and the timestamp, have been persisted in a tamper-evident ledger data structures.
 
@@ -99,7 +99,7 @@ Perform the below steps before you show the demo.
    1. Start the SQL Server Management Studio.
    1. In the **Connect to Server** dialog:
       1. Enter your database server name. Set **Authentication** to **SQL Server Authentication**. Enter the admin username and the admin password.
-      1. Click the **Options >>** button, select the **Connection Properties** tab and enter the database name (**ContosoHR**). 
+      1. Click the **Options >>** button, select the **Connection Properties** tab and enter the database name (**ContosoHR**).
 
          ![Connection Properties](../../../../../media/features/ledger/ssms-connect-to-server-connection-properties-page.png)
 
@@ -129,7 +129,7 @@ Perform the below steps before you show the demo.
 1. *Optional* - If you've showed this demo before, reseed the database to ensure it contains the original employee data.
    1. In Object Explorer, find and select the **ContosoHR** database.
    1. With the **ContosoHR** database selected, click Ctrl + O. In the **Open File** dialog, navigate to the **setup** folder and select **PopulateDatabase.sql**.
-   1. Execute the query.  
+   1. Execute the query.
       **Note:** for best demo results, wait 10 minutes after reseeding the database. This will ensure the **Employee Ledger Entries** and **Audit Events** tabs in the app (Auditor's browser) do not show reseeding queries.
    1. You can close the **PopulateDatabase.sql** tab.
 
@@ -138,7 +138,7 @@ Perform the below steps before you show the demo.
 1. Show the app and the database.
    1. Show the Contoso HR web app in the HR user's browser. Click on the **Employees tab**. This application displays employee records, and allows HR staff members to manage employee records.
    ![Employees tab](../../../../../media/features/ledger/Employees-tab.png)
-   1. Switch to SSMS, select the **ListAllEmployees.sql** tab and execute the query, which shows the content of the **Employees** table. The web application uses this table as a data store.  
+   1. Switch to SSMS, select the **ListAllEmployees.sql** tab and execute the query, which shows the content of the **Employees** table. The web application uses this table as a data store.
 
 1. Show how ledger helps investigate tampering by DBAs.
    1. Point to Jay’s record in the table (row #4). Let's assume Jay is both the DBA of the ContosoHR database as well as an employee of Contoso. Jay wants to maliciously increase his salary.

@@ -15,7 +15,7 @@ class EncryptDecryptRequest(object):
         self.alg = alg
 
 class EncryptDecryptResponse(object):
-    """ 
+    """
     Represents the encryption and decryption response
     """
     def __init__(self, value):

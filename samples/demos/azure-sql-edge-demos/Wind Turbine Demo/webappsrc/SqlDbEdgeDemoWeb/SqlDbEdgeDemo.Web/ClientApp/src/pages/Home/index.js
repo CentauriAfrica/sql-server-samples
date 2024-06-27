@@ -172,7 +172,7 @@ const turbinesData = [
 ]
 
 export class Home extends Component {
-  
+
   componentDidMount() {
     this.props.onSelect('dashboard');
   }

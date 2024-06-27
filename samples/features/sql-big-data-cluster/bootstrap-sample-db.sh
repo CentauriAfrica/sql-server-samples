@@ -131,7 +131,7 @@ for table in web_clickstreams inventory customer
     do
     echo Exporting $table data...
     if [ $table == web_clickstreams ]
-    then 
+    then
         DELIMITER=,
     else
         DELIMITER="|"

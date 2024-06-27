@@ -17,7 +17,7 @@ ALTER DATABASE CURRENT SET QUERY_STORE  (QUERY_CAPTURE_MODE = ALL);
 GO
 
 -- Should be READ_WRITE
-SELECT actual_state_desc 
+SELECT actual_state_desc
 FROM sys.database_query_store_options;
 GO
 
@@ -41,7 +41,7 @@ GO
 	 used to filter AgentId.  Looking at the statistics for AgentId,
 	 you will see that there is a big skew for AgentId 101.
 */
-SELECT	hist.range_high_key AS [AgentId], 
+SELECT	hist.range_high_key AS [AgentId],
 		hist.equal_rows
 FROM sys.stats AS s
 CROSS APPLY sys.dm_db_stats_histogram(s.[object_id], s.stats_id) AS hist
@@ -60,9 +60,9 @@ EXEC [dbo].[PropertySearchByAgent] 4;
 	Now let's find the query_id associated with this query.
 */
 SELECT query_sql_text, q.query_id
-FROM sys.query_store_query_text qt 
-INNER JOIN sys.query_store_query q ON 
-	qt.query_text_id = q.query_text_id 
+FROM sys.query_store_query_text qt
+INNER JOIN sys.query_store_query q ON
+	qt.query_text_id = q.query_text_id
 WHERE query_sql_text like N'%ORDER BY ListingPrice DESC%' and query_sql_text not like N'%query_store%';
 GO
 

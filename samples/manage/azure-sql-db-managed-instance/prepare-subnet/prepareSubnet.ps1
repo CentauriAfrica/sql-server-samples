@@ -12,7 +12,7 @@ $NScollections = "System.Collections.Generic"
 function VerifyPSVersion {
     Write-Host "Verifying PowerShell version."
     if ($PSVersionTable.PSEdition -eq "Desktop") {
-        if (($PSVersionTable.PSVersion.Major -ge 6) -or 
+        if (($PSVersionTable.PSVersion.Major -ge 6) -or
         (($PSVersionTable.PSVersion.Major -eq 5) -and ($PSVersionTable.PSVersion.Minor -ge 1))) {
             Write-Host "PowerShell version verified." -ForegroundColor Green
         }
@@ -28,7 +28,7 @@ function VerifyPSVersion {
         else {
             Write-Host "You need to install PowerShell version 6.0 or heigher." -ForegroundColor Red
             Break;
-        }        
+        }
     }
 }
 
@@ -45,7 +45,7 @@ function EnsureAzModule {
             Write-Host "Module Az installed." -ForegroundColor Green
         }
     } else {
-        Write-Host "Module Az imported." -ForegroundColor Green        
+        Write-Host "Module Az imported." -ForegroundColor Green
     }
 }
 
@@ -79,7 +79,7 @@ function ConvertCidrToUint32Array
     {
         return @(0, [System.Int32]::MaxValue)
     }
-    
+
     $ipnum = ([Convert]::ToUInt32($cidrRangeParts[0]) -shl 24) -bor `
              ([Convert]::ToUInt32($cidrRangeParts[1]) -shl 16) -bor `
              ([Convert]::ToUInt32($cidrRangeParts[2]) -shl 8) -bor `
@@ -96,7 +96,7 @@ function ConvertCidrToUint32Array
 function ContainsCidr
 {
     param(
-        $cidrRangeA, 
+        $cidrRangeA,
         $cidrRangeB
     )
     $a = ConvertCidrToUint32Array $cidrRangeA
@@ -183,31 +183,33 @@ function VerifySubnet {
     param (
         $subnet
     )
-        Write-Host("Verifying subnet '{0}'." -f $subnet.Name)
-        If($subnet.AddressPrefix.Split('/')[1] -le 28)
-        {
-            Write-Host "Passed Validation - Subnet is of enough size." -ForegroundColor Green
-        }
-        Else
-        {
-            Write-Host "Failed Validation - Minimum supported subnet size is /28." -ForegroundColor Red
-            Break
-        }
-        If(
+    Write-Host("Verifying subnet '{0}'." -f $subnet.Name)
+    If ($subnet.AddressPrefix.Split('/')[1] -le 28) {
+        Write-Host "Passed Validation - Subnet is of enough size." -ForegroundColor Green
+    }
+    Else {
+        Write-Host "Failed Validation - Minimum supported subnet size is /28." -ForegroundColor Red
+        Break
+    }
+    If (
             ($subnet.IpConfigurations.Count -eq 0) -and
             (
                 ($subnet.ResourceNavigationLinks.Count -eq 0) -or
                 ($subnet.ResourceNavigationLinks[0].LinkedResourceType -eq 'Microsoft.Sql/virtualClusters')
             )
-          )
-        {
-            Write-Host "Passed Validation - There are no conflicting resources inside the subnet." -ForegroundColor Green
-        }
-        Else
-        {
-            Write-Host "Failed Validation - Subnet is already in use." -ForegroundColor Red
+    ) {
+        If ($subnet.NatGateway.Id) {
+            Write-Host "Failed Validation - There is a NAT gateway associated with this subnet." -ForegroundColor Red
             Break
         }
+        Else {
+            Write-Host "Passed Validation - There are no conflicting resources inside the subnet." -ForegroundColor Green
+        }
+    }
+    Else {
+        Write-Host "Failed Validation - Subnet is already in use." -ForegroundColor Red
+        Break
+    }
 }
 
 
@@ -256,7 +258,7 @@ function LoadNetworkSecurityGroup {
             $null -ne $subnet.NetworkSecurityGroup
           )
         {
-            $nsgSegments = ($subnet.NetworkSecurityGroup.Id).Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)        
+            $nsgSegments = ($subnet.NetworkSecurityGroup.Id).Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)
             $nsgName = $nsgSegments[-1].Trim()
             $nsgResourceGroup = $nsgSegments[3].Trim()
             $networkSecurityGroup = Get-AzNetworkSecurityGroup -ResourceGroupName $nsgResourceGroup -Name $nsgName
@@ -320,7 +322,7 @@ function VerifyAddressPrefix {
         $nsgRuleAddressPrefixes,
         $securityRuleAddressPrefix
     )
-    
+
     ForEach($nsgRuleAddressPrefix in $nsgRuleAddressPrefixes) {
         If($nsgRuleAddressPrefix -eq "*"){
             return $true;
@@ -345,7 +347,7 @@ function VerifyDenyRuleAddressPrefix {
         $nsgRuleAddressPrefixes,
         $securityRuleAddressPrefix
     )
-    
+
     ForEach($nsgRuleAddressPrefix in $nsgRuleAddressPrefixes) {
         If($nsgRuleAddressPrefix -eq "*"){
             return $true;
@@ -366,7 +368,7 @@ function VerifyDenyRuleAddressPrefix {
 }
 
 function IsPrivateCidr
-{    
+{
     param($cidrRange)
     return `
         (ContainsCidr "10.0.0.0/8" $cidrRange) -or `
@@ -397,7 +399,7 @@ function VerifyPort {
         $nsgRulePorts,
         $securityRulePort
     )
-    
+
     ForEach($nsgRulePort in $nsgRulePorts) {
         If($true -eq (ContainsPort -nsgRulePort $nsgRulePort -securityRulePort $securityRulePort)) {
             return $true
@@ -475,7 +477,7 @@ function VerifyNSGRules {
     ForEach($nsgRule in $nsgRules){
         If(VerifyNSGRule -securityRule $securityRule -nsgRule $nsgRule){
             return ($nsgRule.Access -eq "Allow")
-        }        
+        }
     }
 
     return $false
@@ -488,10 +490,10 @@ function VerifyNSG {
     )
         $securityRules = DefineSecurityRules
 
-        $result = @{ 
+        $result = @{
             nsgSecurityRules = New-Object "$NScollections.List``1[$NSnetworkModels.PSSecurityRule]"
             failedSecurityRules = New-Object "$NScollections.List``1[$NSnetworkModels.PSSecurityRule]"
-            success = $false 
+            success = $false
         }
         Write-Host("Verifying Network security group for subnet '{0}'."-f $subnet.Name)
         $nsg = LoadNetworkSecurityGroup $subnet
@@ -528,7 +530,7 @@ function LoadRouteTable {
             $null -ne $subnet.RouteTable
           )
         {
-            $rtSegments = ($subnet.RouteTable.Id).Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)        
+            $rtSegments = ($subnet.RouteTable.Id).Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)
             $rtName = $rtSegments[-1].Trim()
             $rtResourceGroup = $rtSegments[3].Trim()
             $routeTable = Get-AzRouteTable -ResourceGroupName $rtResourceGroup -Name $rtName
@@ -542,7 +544,7 @@ function RequiredRoutes{
     param (
         $subnet
     )
-    
+
     $subnet_to_vnetlocal = New-AzRouteConfig -Name "prepare-subnet-to-vnetlocal" -AddressPrefix $subnet.AddressPrefix[0] -NextHopType VnetLocal
     $mi_13_64_11_nexthop_internet = New-AzRouteConfig -Name "prepare-mi-13-64-11-nexthop-internet" -AddressPrefix 13.64.0.0/11	-NextHopType Internet
     $mi_13_96_13_nexthop_internet = New-AzRouteConfig -Name "prepare-mi-13-96-13-nexthop-internet" -AddressPrefix 13.96.0.0/13	-NextHopType Internet
@@ -643,7 +645,7 @@ function RequiredRoutes{
     $mi_213_199_128_18_nexthop_internet = New-AzRouteConfig -Name "prepare-mi-213-199-128-18-nexthop-internet" -AddressPrefix 213.199.128.0/18	-NextHopType Internet
     $mi_216_32_180_22_nexthop_internet = New-AzRouteConfig -Name "prepare-mi-216-32-180-22-nexthop-internet" -AddressPrefix 216.32.180.0/22 -NextHopType Internet
     $mi_216_220_208_20_nexthop_internet = New-AzRouteConfig -Name "prepare-mi-216-220-208-20-nexthop-internet" -AddressPrefix 216.220.208.0/20 -NextHopType Internet
-    
+
     $requiredRoutes = New-Object "$NScollections.List``1[$NSnetworkModels.PSRoute]"
     $requiredRoutes.Add($subnet_to_vnetlocal)
     $requiredRoutes.Add($mi_13_64_11_nexthop_internet)
@@ -753,12 +755,12 @@ function VerifyRouteTable {
     param (
         $subnet
     )
-        $result = @{ 
+        $result = @{
             routes = New-Object "$NScollections.List``1[$NSnetworkModels.PSRoute]"
             hasRouteTable = $false
-            success = $false 
+            success = $false
         }
-        
+
         Write-Host("Verifying Route table for subnet '{0}'."-f $subnet.Name)
 
         $requiredRoutes = RequiredRoutes $subnet
@@ -818,7 +820,7 @@ function VerifyRouteTable {
             }
 
             $result['success'] = $result['hasRouteTable'] -and $hasCompatibleRoutes
-        }       
+        }
         Else
         {
             $result['success'] = $false
@@ -841,7 +843,7 @@ function VerifyRouteTable {
                 Write-Host "Warning - There is no route table on the subnet." -ForegroundColor Yellow
             }
         }
-        
+
         return $result
 }
 
@@ -861,13 +863,13 @@ function PrepareServiceDelegation
     {
         Write-Host "Failed: $_" -ForegroundColor Red
     }
-    
+
 }
 function PrepareNSG
 {
     param(
         $nsgVerificationResult,
-        $virtualNetwork,   
+        $virtualNetwork,
         $subnet
     )
     Write-Host "Creating Network security group."
@@ -918,7 +920,7 @@ function PrepareRouteTable
 {
     param(
         $routeTableVerificationResult,
-        $virtualNetwork,   
+        $virtualNetwork,
         $subnet
     )
     Write-Host "Creating Route table."
@@ -977,12 +979,12 @@ $isValid = $isOkServiceEndpoints -and $isOkNSG -and $isOkRouteTable -and $isOkSe
 If($isValid -ne $true)
 {
     Write-Host
-    Write-Host("----------  To prepare the virtual network subnet for Managed Instance this script will: --------------- ")  -ForegroundColor Yellow    
+    Write-Host("----------  To prepare the virtual network subnet for Managed Instance this script will: --------------- ")  -ForegroundColor Yellow
     Write-Host
     If($isOkServiceEndpoints -ne $true)
     {
         Write-Host "[Endpoints] Remove all service endpoints." -ForegroundColor Yellow
-    }    
+    }
     If($isOkNSG -ne $true)
     {
         Write-Host "[NSG] Create a copy of assoicated Network security group and add security rules to:" -ForegroundColor Yellow
@@ -990,7 +992,7 @@ If($isValid -ne $true)
             Write-Host ("[NSG] -"+$rule.Description) -ForegroundColor Yellow
         }
         Write-Host "[NSG] Associate newly created Network security group to subnet." -ForegroundColor Yellow
-    }  
+    }
     If($isOkRouteTable -ne $true)
     {
         If($hasRouteTable -eq $true)
@@ -1006,34 +1008,34 @@ If($isValid -ne $true)
     If($isOkServiceDelegation -ne $true)
     {
         Write-Host "[Service Delegation] Add Microsoft.Sql/managedInstances as a service delegation for subnet" -ForegroundColor Yellow
-    }    
+    }
     Write-Host
-    Write-Host("-------------------------------------------------------------------------------------------------------- ")  -ForegroundColor Yellow    
+    Write-Host("-------------------------------------------------------------------------------------------------------- ")  -ForegroundColor Yellow
     Write-Host
 
 
     $applyChanges = $force
-    
+
     If($applyChanges -ne $true)
     {
         $reply = Read-Host -Prompt "Do you want to make these changes? [y/n]"
-        $applyChanges = $reply -match "[yY]" 
+        $applyChanges = $reply -match "[yY]"
         Write-Host
     }
 
-    If ($applyChanges) 
-    { 
-            
+    If ($applyChanges)
+    {
+
         If($isOkNSG -ne $true)
         {
             PrepareNSG $nsgVerificationResult $virtualNetwork $subnet
-        }  
+        }
 
         If($isOkRouteTable -ne $true)
         {
             PrepareRouteTable $routeTableVerificationResult $virtualNetwork $subnet
         }
-           
+
         If($isOkNSG -ne $true)
         {
             PrepareNSG $nsgVerificationResult $virtualNetwork $subnet
@@ -1046,7 +1048,7 @@ If($isValid -ne $true)
         SetVirtualNetwork $virtualNetwork
 
         Write-Host
-        Write-Host "Subnet prepared for the Managed Instance." -ForegroundColor Green        
+        Write-Host "Subnet prepared for the Managed Instance." -ForegroundColor Green
         Write-Host "https://portal.azure.com/#create/Microsoft.SQLManagedInstance"
     }
     Else

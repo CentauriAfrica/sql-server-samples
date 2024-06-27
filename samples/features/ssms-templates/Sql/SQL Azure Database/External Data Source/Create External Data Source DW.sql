@@ -1,11 +1,11 @@
 -- =========================================================================
--- Create external data source template for Azure Synapse Analytics Database 
+-- Create external data source template for Azure Synapse Analytics Database
 -- =========================================================================
 
 IF EXISTS (
   SELECT *
    FROM sys.external_data_sources	
-   WHERE name = N'<data_source_name, sysname, sample_data_source>'	 
+   WHERE name = N'<data_source_name, sysname, sample_data_source>'	
 )
 DROP EXTERNAL DATA SOURCE <data_source_name, sysname, sample_data_source>
 GO

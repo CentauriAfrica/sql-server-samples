@@ -19,8 +19,8 @@ if ($clientCertificatePassword -eq '' -or ($null -eq $clientCertificatePassword)
 
 function VerifyPSVersion {
     Write-Host "Verifying PowerShell version."
-    if ($PSVersionTable.PSEdition -eq "Desktop") {
-        if (($PSVersionTable.PSVersion.Major -ge 6) -or 
+    if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.PSEdition -eq "Core" ) {
+        if (($PSVersionTable.PSVersion.Major -ge 6) -or
             (($PSVersionTable.PSVersion.Major -eq 5) -and ($PSVersionTable.PSVersion.Minor -ge 1))) {
             Write-Host "PowerShell version verified." -ForegroundColor Green
         }
@@ -36,7 +36,7 @@ function VerifyPSVersion {
         else {
             Write-Host "You need to install PowerShell version 6.0 or heigher." -ForegroundColor Red
             Break;
-        }        
+        }
     }
 }
 
@@ -54,7 +54,7 @@ function EnsureAzModule {
         }
     }
     else {
-        Write-Host "Module Az imported." -ForegroundColor Green        
+        Write-Host "Module Az imported." -ForegroundColor Green
     }
 }
 
@@ -163,6 +163,15 @@ function CalculateNextAddressPrefix {
         }
     }
     $startIPAddress += 1
+    # if crossing a block boundary, round to the next possible start for the given suffix size
+    $suffixLength = 32 - $prefixLength
+    $mask = (1 -shl $suffixLength) - 1
+    if (($startIPAddress -band $mask) -ne $startIPAddress) {
+        $x = $startIPAddress -shr $suffixLength
+        $x += 1
+        $startIPAddress = $x -shl $suffixLength
+    }
+    # convert and return
     $addressPrefixResult = (ConvertUInt32ToIPAddress $startIPAddress) + "/" + $prefixLength
     Write-Host "Using address prefix $addressPrefixResult." -ForegroundColor Green
     return $addressPrefixResult
@@ -193,11 +202,11 @@ function CreateCerificateWindows() {
         -HashAlgorithm sha256 -KeyLength 2048 `
         -CertStoreLocation "Cert:\CurrentUser\My" `
         -Signer $certificate -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2") | Out-null
-    
+
     [Convert]::ToBase64String((Get-Item cert:\currentuser\my\$certificateThumbprint).RawData)
 }
 
-function CreateCerificateOpenSsl() {   
+function CreateCerificateOpenSsl() {
     $dn = "CN=$certificateNamePrefix" + "P2SRoot"
     ipsec pki --gen --outform pem > caKey.pem
     ipsec pki --self --in caKey.pem --dn $dn --ca --outform pem > caCert.pem
@@ -206,12 +215,12 @@ function CreateCerificateOpenSsl() {
     ipsec pki --gen --outform pem > "$($dn)Key.pem"
     ipsec pki --pub --in "$($dn)Key.pem" --outform pem > "$($dn)PubKey.pem"
     ipsec pki --issue --in "$($dn)PubKey.pem" --cacert caCert.pem --cakey caKey.pem --dn "CN=$($dn)" --san $dn --flag clientAuth --outform pem > "$($dn)Cert.pem"
-    
+
     openssl pkcs12 -in "$($dn)Cert.pem" -inkey "$($dn)Key.pem" -certfile caCert.pem -export -out "$($dn).p12" -password "pass:$($clientCertificatePassword)"
     #openssl pkcs12 -in "$($dn).p12" -password "pass:$($clientCertificatePassword)" -nocerts -out "$($dn)PrivateKey.pem" -nodes
     #openssl pkcs12 -in "$($dn).p12" -password "pass:$($clientCertificatePassword)" -nokeys -out "$($dn)PublicCert.pem" -nodes
 
-    $publicRootCertData = openssl x509 -in caCert.pem -outform pem 
+    $publicRootCertData = openssl x509 -in caCert.pem -outform pem
     $publicRootCertData = $publicRootCertData -replace "-----BEGIN CERTIFICATE-----", ""
     $publicRootCertData = $publicRootCertData -replace "-----END CERTIFICATE-----", ""
     [string]::Join("", $publicRootCertData.Split())
@@ -219,7 +228,7 @@ function CreateCerificateOpenSsl() {
 
 function CreateCertificate() {
     Write-Host "Creating certificate."
-    if ($PSVersionTable.PSEdition -eq "Desktop") {
+    if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.PSEdition -eq "Core" ) {
         return CreateCerificateWindows
     }
     else {
@@ -239,7 +248,7 @@ $gatewaySubnetName = "GatewaySubnet"
 
 If ($false -eq $subnets.Contains($gatewaySubnetName)) {
     Write-Host "$gatewaySubnetName is not one of the subnets in $subnets" -ForegroundColor Yellow
-    $gatewaySubnetPrefix = CalculateNextAddressPrefix $virtualNetwork 28
+    $gatewaySubnetPrefix = CalculateNextAddressPrefix $virtualNetwork 27
     Write-Host "Creating subnet $gatewaySubnetName ($gatewaySubnetPrefix) in the virtual network ..." -ForegroundColor Green
 
     $virtualNetwork.AddressSpace.AddressPrefixes.Add($gatewaySubnetPrefix)
@@ -264,7 +273,7 @@ Write-Host "Starting deployment..."
 Write-Host "Deployment will take about 1h." -ForegroundColor Yellow
 
 $templateParameters = @{
-    location                   = $virtualNetwork.Location    
+    location                   = $virtualNetwork.Location
     virtualNetworkName         = $virtualNetworkName
     gatewaySubnetPrefix        = $gatewaySubnetPrefix
     vpnClientAddressPoolPrefix = $vpnClientAddressPoolPrefix

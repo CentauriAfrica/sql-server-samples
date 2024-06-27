@@ -1,4 +1,4 @@
-# requires installation of Docker: https://docs.docker.com/install/ 
+# requires installation of Docker: https://docs.docker.com/install/
 
 from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
 import os

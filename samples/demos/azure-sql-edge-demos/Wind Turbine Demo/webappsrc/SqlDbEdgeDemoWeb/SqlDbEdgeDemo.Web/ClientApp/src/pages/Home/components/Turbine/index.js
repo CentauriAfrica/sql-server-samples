@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import './Turbine.scss';
 
 export default class Turbine extends Component {
-  
+
   state = {
     rotationDegrees: 0,
     slowRotationDegrees: 0

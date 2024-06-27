@@ -29,7 +29,7 @@ azdata bdc config replace -p private-bdc-aks/bdc.json -j "$.spec.resources.maste
 azdata bdc config replace -p private-bdc-aks/bdc.json -j "$.spec.resources.gateway.spec.endpoints[0].serviceType=NodePort"
 azdata bdc config replace -p private-bdc-aks/bdc.json -j "$.spec.resources.appproxy.spec.endpoints[0].serviceType=NodePort"
 
-#In case you're deploying BDC in HA mode ( aks-dev-test-ha profile ) please also use the following command 
+#In case you're deploying BDC in HA mode ( aks-dev-test-ha profile ) please also use the following command
 #azdata bdc config replace -c private-bdc-aks /bdc.json -j "$.spec.resources.master.spec.endpoints[1].serviceType=NodePort"
 export AZDATA_USERNAME=$bdcadmin
 export AZDATA_PASSWORD=$password

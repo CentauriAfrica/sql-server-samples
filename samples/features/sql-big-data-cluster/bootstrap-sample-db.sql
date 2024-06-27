@@ -1,4 +1,4 @@
-USE master;  
+USE master;
 GO
 -- Enable external scripts execution for R/Python/Java:
 DECLARE @config_option nvarchar(100) = 'external scripts enabled';
@@ -166,8 +166,8 @@ AS
 	  q.clicks_in_7,
 	  q.clicks_in_8,
 	  q.clicks_in_9
-	FROM( 
-	  SELECT 
+	FROM(
+	  SELECT
 		w.wcs_user_sk,
 		SUM( CASE WHEN i.i_category = 'Books' THEN 1 ELSE 0 END) AS clicks_in_category,
 		SUM( CASE WHEN i.i_category_id = 1 THEN 1 ELSE 0 END) AS clicks_in_1,

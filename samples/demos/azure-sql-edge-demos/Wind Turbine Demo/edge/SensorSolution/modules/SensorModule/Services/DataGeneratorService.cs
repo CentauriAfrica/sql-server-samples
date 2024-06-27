@@ -161,7 +161,7 @@ namespace SensorModule.Services
 
       return toReturn.OrderBy(a => Guid.NewGuid()).ToList();
     }
-  
+
     public List<RealtimeSensorRecord> GenerateRealTimeSensorRecords(bool stopWake)
     {
       RealtimeWindTurbineRecord windTurbineRecord;

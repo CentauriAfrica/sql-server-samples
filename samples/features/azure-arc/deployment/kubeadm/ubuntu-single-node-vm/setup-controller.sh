@@ -111,7 +111,7 @@ touch $LOG_FILE
 #
 echo ""
 echo "######################################################################################"
-echo "Starting installing packages..." 
+echo "Starting installing packages..."
 
 # Install docker.
 #
@@ -147,7 +147,7 @@ sudo apt install -y libodbc1 odbcinst odbcinst1debian2 unixodbc apt-transport-ht
 # Download and install azdata package
 #
 echo ""
-echo "Downloading azdata installer from" $AZDATA_PRIVATE_PREVIEW_DEB_PACKAGE 
+echo "Downloading azdata installer from" $AZDATA_PRIVATE_PREVIEW_DEB_PACKAGE
 curl --location $AZDATA_PRIVATE_PREVIEW_DEB_PACKAGE --output azdata_setup.deb
 sudo dpkg -i azdata_setup.deb
 cd -
@@ -175,7 +175,7 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # Load all pre-requisites for Kubernetes.
 #
 echo "###########################################################################"
-echo "Starting to setup pre-requisites for kubernetes..." 
+echo "Starting to setup pre-requisites for kubernetes..."
 
 # Setup the kubernetes preprequisites.
 #
@@ -256,13 +256,13 @@ for i in $(seq 1 $PV_COUNT); do
   sudo mount --bind /azurearc/local-storage/$vol /azurearc/local-storage/$vol
 
 done
-echo "Kubernetes pre-requisites have been completed." 
+echo "Kubernetes pre-requisites have been completed."
 
 # Setup kubernetes cluster including remove taint on master.
 #
 echo ""
 echo "#############################################################################"
-echo "Starting to setup Kubernetes master..." 
+echo "Starting to setup Kubernetes master..."
 
 # Initialize a kubernetes cluster on the current node.
 #
@@ -329,14 +329,14 @@ echo "Kubernetes master setup done."
 #
 echo ""
 echo "############################################################################"
-echo "Starting to deploy azdata cluster..." 
+echo "Starting to deploy azdata cluster..."
 
 # Command to create cluster for single node cluster.
 #
 azdata arc dc config init -s azure-arc-kubeadm-private-preview -t azure-arc-custom --force
 
 azdata arc dc create -n $ARC_DC_NAME -p azure-arc-kubeadm-private-preview --namespace $CLUSTER_NAME --location $ARC_DC_REGION --resource-group $ARC_DC_RG --subscription $ARC_DC_SUBSCRIPTION --connectivity-mode indirect
-echo "Azure Arc Data Controller cluster created." 
+echo "Azure Arc Data Controller cluster created."
 
 # Setting context to cluster.
 #

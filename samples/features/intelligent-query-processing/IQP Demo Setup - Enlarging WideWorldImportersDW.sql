@@ -1,13 +1,13 @@
 -- ***************************************************** --
 -- Purpose of this script: make WideWorldImportersDW
--- bigger - so you can see more impactful 
+-- bigger - so you can see more impactful
 -- Intelligent QP demonstrations (aka.ms/iqp)
 --
 -- Script last updated 05/03/2019
 --
 -- Database backup source: aka.ms/wwibak
--- 
--- Initial database file to restore before beginning this script: 
+--
+-- Initial database file to restore before beginning this script:
 --		WideWorldImportersDW-Full.bak
 -- ***************************************************** --
 
@@ -18,7 +18,7 @@ GO
 	Assumes a fresh restore of WideWorldImportersDW
 */
 
-IF OBJECT_ID('Fact.OrderHistory') IS NULL 
+IF OBJECT_ID('Fact.OrderHistory') IS NULL
 BEGIN
     SELECT [Order Key], [City Key], [Customer Key], [Stock Item Key], [Order Date Key], [Picked Date Key], [Salesperson Key], [Picker Key], [WWI Order ID], [WWI Backorder ID], Description, Package, Quantity, [Unit Price], [Tax Rate], [Total Excluding Tax], [Tax Amount], [Total Including Tax], [Lineage Key]
     INTO Fact.OrderHistory
@@ -68,7 +68,7 @@ GO 4
 SELECT COUNT(*) FROM Fact.OrderHistory;
 GO
 
-IF OBJECT_ID('Fact.OrderHistoryExtended') IS NULL 
+IF OBJECT_ID('Fact.OrderHistoryExtended') IS NULL
 BEGIN
     SELECT [Order Key], [City Key], [Customer Key], [Stock Item Key], [Order Date Key], [Picked Date Key], [Salesperson Key], [Picker Key], [WWI Order ID], [WWI Backorder ID], Description, Package, Quantity, [Unit Price], [Tax Rate], [Total Excluding Tax], [Tax Amount], [Total Including Tax], [Lineage Key]
     INTO Fact.OrderHistoryExtended

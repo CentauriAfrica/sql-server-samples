@@ -1,22 +1,22 @@
 #Requires -Modules @{ ModuleName="Az.Sql"; ModuleVersion="3.5.1" }
 #Data Sync OMS Integration Runbook
 
-#To use this script Change all the strings below to reflect your information. 
+#To use this script Change all the strings below to reflect your information.
 #Setup a System Managed Identity in the Automation Account, with Reader permissions to the monitored SQL targets
 #Also allow the managed identity access to the Automation Account itself to read/write the Variable used
 
 #Information for Sync Group 1
-#If you want to use all the sync groups in your subscription keep the $DS_xxxx fields empty. 
-#If you want to use all sync groups in a Resource Group define the $DS_ResourceGroupName. 
+#If you want to use all the sync groups in your subscription keep the $DS_xxxx fields empty.
+#If you want to use all sync groups in a Resource Group define the $DS_ResourceGroupName.
 #If you want to use all sync groups in a Server define $DS_ResourceGroupName and $DS_ServerName.
 #If you want to use all sync groups in a Database define $DS_ResourceGroupName, $DS_ServerName and $DS_DatabaseName.
 #If you want to use a specific sync group define $DS_ResourceGroupName, $DS_ServerName, $DS_DatabaseName and $DS_SyncGroupName.
 
-$SubscriptionId = "SubscriptionId" 
+$SubscriptionId = "SubscriptionId"
 $DS_ResourceGroupName = ""
-$DS_ServerName =  "" 
-$DS_DatabaseName = "" 
-$DS_SyncGroupName = "" 
+$DS_ServerName =  ""
+$DS_DatabaseName = ""
+$DS_SyncGroupName = ""
 
 # Insert your Automation Account ResourceGroup and Account names
 $AC_ResourceGroupName = "ResourceGroupName"
@@ -25,7 +25,7 @@ $AC_AccountName = "AutomationAccountName"
 $AC_LastUpdatedTimeVariableName = "DataSyncLogLastUpdatedTime"
 
 # Replace with your OMS Workspace ID (Log Analytics Workspace ID)
-$CustomerId = "OMSCustomerID"  
+$CustomerId = "OMSCustomerID"
 
 # Replace with your OMS Primary Key (Log Analytics Primary Key)
 $SharedKey = "SharedKey"
@@ -41,7 +41,7 @@ Disable-AzContextAutosave -Scope Process
 # Connect to Azure with system-assigned managed identity
 $AzureContext = (Connect-AzAccount -Identity).context
 # set and store context
-$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContextficateThumbprint $servicePrincipalConnection.CertificateThumbprint 
+$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
 
 # Create the function to create the authorization signature
 Function Build-Signature ($customerId, $sharedKey, $date, $contentLength, $method, $contentType, $resource)
@@ -166,13 +166,13 @@ foreach ($ResourceGroup in $ResourceGroupName)
                     $Log | Add-Member -Name "ResourceGroupName" -Value $ResourceGroup -MemberType NoteProperty
                     $Log | Add-Member -Name "ServerName" -Value $Server -MemberType NoteProperty
                     $Log | Add-Member -Name "HubDatabaseName" -Value $Database -MemberType NoteProperty
-                    $Log | Add-Member -Name "SyncGroupName" -Value $SyncGroup -MemberType NoteProperty 
+                    $Log | Add-Member -Name "SyncGroupName" -Value $SyncGroup -MemberType NoteProperty
 
                     #Filter out Successes to Reduce Data Volume to OMS
                     #Include the 5 commented out line below to enable the filter
                     #For($i=0; $i -lt $Log.Length; $i++ ) {
                     #    if($Log[$i].LogLevel -eq "Success") {
-                    #      $Log[$i] =""      
+                    #      $Log[$i] =""
                     #    }
                     # }
 
@@ -186,13 +186,13 @@ foreach ($ResourceGroup in $ResourceGroupName)
 
 
                 $result = Post-OMSData -customerId $customerId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($json)) -logType $logType
-                if ($result -eq 200) 
+                if ($result -eq 200)
                 {
                     Write-Host "Success"
                 }
-                if ($result -ne 200) 
+                if ($result -ne 200)
                {
-                   throw 
+                   throw
 @"
                     Posting to OMS Failed                         
                     Runbook Name: DataSyncOMSIntegration                         

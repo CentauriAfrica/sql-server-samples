@@ -24,7 +24,7 @@ To run this sample, you need the following prerequisites.
 
 1. SQL Server big data cluster CTP 2.3 or later.
 2. `azdata`. Refer to [installing azdata](https://docs.microsoft.com/en-us/sql/big-data-cluster/deploy-install-azdata?view=sqlallproducts-allversions) document on setting up the `azdata` and connecting to a SQL Server big data cluster.
-3. Optional: to see the SSIS package itself, install Visual Studio 2017 if you don't have it already. After that download and install [SSDT](https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017#ssdt-for-vs-2017-standalone-installer). 
+3. Optional: to see the SSIS package itself, install Visual Studio 2017 if you don't have it already. After that download and install [SSDT](https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017#ssdt-for-vs-2017-standalone-installer).
 4. Optional: install [SSMS](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-2017) if it is not already installed.
 
 <a name=run-this-sample></a>
@@ -65,7 +65,7 @@ To run this sample, you need the following prerequisites.
 
 ## Sample details
 
-Please open to [Visual Studio solution](back-up-db.sln) to see the SSIS package. 
+Please open to [Visual Studio solution](back-up-db.sln) to see the SSIS package.
 
 ### Spec file
 Here is the spec file for this application. This sample uses the `SSIS` runtime and does not specify any `inputs` or `outputs`. Next to that, the spec file in this example specifies `options` and `schedule`:

@@ -10,7 +10,7 @@ from utils import *
 
 # Fetch current run
 run = Run.get_context()
-    
+
 # Fetch dataset from the run by name
 dataset = run.input_datasets['training']
 

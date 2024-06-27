@@ -3,7 +3,7 @@
 
 -- See https://aka.ms/IQP for more background
 
--- Demo scripts: https://aka.ms/IQPDemos 
+-- Demo scripts: https://aka.ms/IQPDemos
 
 -- This demo is on SQL Server 2017 and Azure SQL DB
 
@@ -33,7 +33,7 @@ RETURNS @OutlierEventQuantity TABLE (
 	[Salesperson Key] [int] NOT NULL,
 	[Picker Key] [int] NULL,
 	[OutlierEventQuantity] [int] NOT NULL)
-AS 
+AS
 BEGIN
 
 -- Valid @event values
@@ -45,11 +45,11 @@ BEGIN
     INSERT  @OutlierEventQuantity
 	SELECT [o].[Order Key], [o].[City Key], [o].[Customer Key],
            [o].[Stock Item Key], [o].[Order Date Key], [o].[Picked Date Key],
-           [o].[Salesperson Key], [o].[Picker Key], 
+           [o].[Salesperson Key], [o].[Picker Key],
            CASE
 			WHEN [o].[Quantity] > 2 THEN [o].[Quantity] * .5
 			ELSE [o].[Quantity]
-		   END 
+		   END
 	FROM [Fact].[Order] AS [o]
 	INNER JOIN [Dimension].[City] AS [c]
 		ON [c].[City Key] = [o].[City Key]
@@ -59,11 +59,11 @@ BEGIN
     INSERT  @OutlierEventQuantity
 	SELECT [o].[Order Key], [o].[City Key], [o].[Customer Key],
            [o].[Stock Item Key], [o].[Order Date Key], [o].[Picked Date Key],
-           [o].[Salesperson Key], [o].[Picker Key], 
+           [o].[Salesperson Key], [o].[Picker Key],
            CASE
 			WHEN [o].[Quantity] > 10 THEN [o].[Quantity] * .5
 			ELSE [o].[Quantity]
-		   END 
+		   END
 	FROM [Fact].[Order] AS [o]
 	INNER JOIN [Dimension].[City] AS [c]
 		ON [c].[City Key] = [o].[City Key]
@@ -77,7 +77,7 @@ BEGIN
     INSERT @OutlierEventQuantity
 	SELECT [o].[Order Key], [o].[City Key], [o].[Customer Key],
            [o].[Stock Item Key], [o].[Order Date Key], [o].[Picked Date Key],
-           [o].[Salesperson Key], [o].[Picker Key], 
+           [o].[Salesperson Key], [o].[Picker Key],
            CASE
 			WHEN [o].[Quantity] > 50 THEN [o].[Quantity] * .5
 			ELSE [o].[Quantity]
@@ -96,7 +96,7 @@ BEGIN
     INSERT @OutlierEventQuantity
 	SELECT [o].[Order Key], [o].[City Key], [o].[Customer Key],
            [o].[Stock Item Key], [o].[Order Date Key], [o].[Picked Date Key],
-           [o].[Salesperson Key], [o].[Picker Key], 
+           [o].[Salesperson Key], [o].[Picker Key],
            CASE
 		    WHEN [cu].[Customer] = 'Unknown' THEN 0
 			WHEN [cu].[Customer] <> 'Unknown' AND
@@ -138,7 +138,7 @@ INNER JOIN [Fact].[ufn_WhatIfOutlierEventQuantity]('Mild Recession',
                             AND [fo].[Picked Date Key] = [foo].[Picked Date Key]
                             AND [fo].[Salesperson Key] = [foo].[Salesperson Key]
                             AND [fo].[Picker Key] = [foo].[Picker Key]
-INNER JOIN [Dimension].[Stock Item] AS [si] 
+INNER JOIN [Dimension].[Stock Item] AS [si]
 	ON [fo].[Stock Item Key] = [si].[Stock Item Key]
 WHERE [si].[Lead Time Days] > 0
 		AND [fo].[Quantity] > 50;
@@ -166,7 +166,7 @@ INNER JOIN [Fact].[ufn_WhatIfOutlierEventQuantity]('Mild Recession',
                             AND [fo].[Picked Date Key] = [foo].[Picked Date Key]
                             AND [fo].[Salesperson Key] = [foo].[Salesperson Key]
                             AND [fo].[Picker Key] = [foo].[Picker Key]
-INNER JOIN [Dimension].[Stock Item] AS [si] 
+INNER JOIN [Dimension].[Stock Item] AS [si]
 	ON [fo].[Stock Item Key] = [si].[Stock Item Key]
 WHERE [si].[Lead Time Days] > 0
 		AND [fo].[Quantity] > 50;

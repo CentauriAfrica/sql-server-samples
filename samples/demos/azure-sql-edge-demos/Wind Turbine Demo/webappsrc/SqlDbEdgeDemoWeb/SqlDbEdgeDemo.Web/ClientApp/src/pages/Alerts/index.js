@@ -38,7 +38,7 @@ export default class Alerts extends Component {
         if (this.state.progress === 100) {
           clearInterval(this.interval);
           this.setState({ selectedView: 'mechanical', progress: 0 });
-        } 
+        }
       })
     }, 30)
   }
@@ -50,7 +50,7 @@ export default class Alerts extends Component {
           if (this.state.progress === 100) {
             clearInterval(this.interval)
             this.setState({ selectedView: 'environmental', progress: 0, hasRefreshed: true });
-          } 
+          }
         })
       }, 30)
     })

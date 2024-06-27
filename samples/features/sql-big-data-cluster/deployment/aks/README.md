@@ -1,5 +1,5 @@
 
-# Deploy a SQL Server big data cluster on Azure Kubernetes Service (AKS) 
+# Deploy a SQL Server big data cluster on Azure Kubernetes Service (AKS)
 
 Using this sample Python script, you will deploy a Kubernetes cluster in Azure using AKS and a SQL Server big data cluster using this AKS cluster as its environment. The script can be run from any client OS.
 

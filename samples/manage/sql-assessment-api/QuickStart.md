@@ -40,6 +40,6 @@ Get-SqlDatabase -ServerInstance 'localhost' | Invoke-SqlAssessment
 
 To learn more about SQL Assessment API such as customizing and extending the ruleset, saving the results in a table, etc., please visit:
 
-- Docs online page: https://docs.microsoft.com/sql/sql-assessment-api/sql-assessment-api-overview 
+- Docs online page: https://docs.microsoft.com/sql/sql-assessment-api/sql-assessment-api-overview
 - GitHub repo: http://aka.ms/sql-assessment-api
 - SQL Assessment API Tutorial notebook: [SQLAssessmentAPITutorialNotebook.ipynb](./notebooks/SQLAssessmentAPITutorialNotebook.ipynb)

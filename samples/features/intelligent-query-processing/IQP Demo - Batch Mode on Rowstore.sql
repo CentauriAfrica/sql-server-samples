@@ -3,7 +3,7 @@
 
 -- See https://aka.ms/IQP for more background
 
--- Demo scripts: https://aka.ms/IQPDemos 
+-- Demo scripts: https://aka.ms/IQPDemos
 
 -- This demo is on SQL Server 2019 and Azure SQL DB
 

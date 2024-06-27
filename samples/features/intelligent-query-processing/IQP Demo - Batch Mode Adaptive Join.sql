@@ -3,7 +3,7 @@
 
 -- See https://aka.ms/IQP for more background
 
--- Demo scripts: https://aka.ms/IQPDemos 
+-- Demo scripts: https://aka.ms/IQPDemos
 
 -- This demo is on SQL Server 2017 and Azure SQL DB
 
@@ -22,24 +22,24 @@ GO
 -- Show with Live Query Stats
 SELECT [fo].[Order Key], [si].[Lead Time Days], [fo].[Quantity]
 FROM [Fact].[Order] AS [fo]
-INNER JOIN [Dimension].[Stock Item] AS [si] 
+INNER JOIN [Dimension].[Stock Item] AS [si]
 	ON [fo].[Stock Item Key] = [si].[Stock Item Key]
 WHERE [fo].[Quantity] = 360;
 GO
 
 -- Inserting quantity row that doesn't exist in the table yet
-DELETE [Fact].[Order] 
+DELETE [Fact].[Order]
 WHERE Quantity = 361;
 
-INSERT [Fact].[Order] 
-	([City Key], [Customer Key], [Stock Item Key], [Order Date Key], [Picked Date Key], [Salesperson Key], 
-	[Picker Key], [WWI Order ID], [WWI Backorder ID], Description, Package, Quantity, [Unit Price], [Tax Rate], 
+INSERT [Fact].[Order]
+	([City Key], [Customer Key], [Stock Item Key], [Order Date Key], [Picked Date Key], [Salesperson Key],
+	[Picker Key], [WWI Order ID], [WWI Backorder ID], Description, Package, Quantity, [Unit Price], [Tax Rate],
 	[Total Excluding Tax], [Tax Amount], [Total Including Tax], [Lineage Key])
 SELECT TOP 5 [City Key], [Customer Key], [Stock Item Key],
-	[Order Date Key], [Picked Date Key], [Salesperson Key], 
-	[Picker Key], [WWI Order ID], [WWI Backorder ID], 
-	Description, Package, 361, [Unit Price], [Tax Rate], 
-	[Total Excluding Tax], [Tax Amount], [Total Including Tax], 
+	[Order Date Key], [Picked Date Key], [Salesperson Key],
+	[Picker Key], [WWI Order ID], [WWI Backorder ID],
+	Description, Package, 361, [Unit Price], [Tax Rate],
+	[Total Excluding Tax], [Tax Amount], [Total Including Tax],
 	[Lineage Key]
 FROM [Fact].[Order];
 GO
@@ -47,7 +47,7 @@ GO
 -- Show with Live Query Stats
 SELECT [fo].[Order Key], [si].[Lead Time Days], [fo].[Quantity]
 FROM [Fact].[Order] AS [fo]
-INNER JOIN [Dimension].[Stock Item] AS [si] 
+INNER JOIN [Dimension].[Stock Item] AS [si]
 	ON [fo].[Stock Item Key] = [si].[Stock Item Key]
 WHERE [fo].[Quantity] = 361;
 GO

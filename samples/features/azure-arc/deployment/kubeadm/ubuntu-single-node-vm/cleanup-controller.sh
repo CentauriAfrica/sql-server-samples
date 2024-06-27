@@ -82,7 +82,7 @@ done
 
 # Reset kube
 #
-sudo apt-get purge -y kubeadm --allow-change-held-packages 
+sudo apt-get purge -y kubeadm --allow-change-held-packages
 sudo apt-get purge -y kubectl --allow-change-held-packages
 sudo apt-get purge -y kubelet --allow-change-held-packages
 sudo apt-get purge -y kubernetes-cni --allow-change-held-packages
@@ -91,7 +91,7 @@ sudo apt -y autoremove
 sudo rm -rf ~/.kube
 
 # Clean up working folders.
-# 
+#
 export AZUREARCDATACONTROLLER_DIR=aadatacontroller
 if [ -d "$AZUREARCDATACONTROLLER_DIR" ]; then
     echo "Removing working directory $AZUREARCDATACONTROLLER_DIR."

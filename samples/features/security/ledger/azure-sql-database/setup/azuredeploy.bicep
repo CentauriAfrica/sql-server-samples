@@ -9,7 +9,7 @@ param projectName string
 param userObjectId string
 
 @description('The username of the user running the deployment.')
-param userName string 
+param userName string
 
 @description('The username of the Azure SQL database server administrator for SQL authentication.')
 param sqlAdminUserName string
@@ -18,7 +18,7 @@ param sqlAdminUserName string
 param sqlAdminPassword string
 
 @description('The IP address the user will connect from to the logical server in Azure SQL Database.')
-param clientIP string 
+param clientIP string
 
 @description('The location (the Azure region) for all resources.')
 param location string = resourceGroup().location
@@ -89,7 +89,7 @@ resource Database_Resource 'Microsoft.Sql/servers/databases@2021-02-01-preview' 
   location: location
   sku: {
     name: 'GP_S_Gen5_1'
-    tier: 'GeneralPurpose'    
+    tier: 'GeneralPurpose'
   }
 }
 
@@ -102,7 +102,7 @@ var StorageAccount_var = '${projectName}stg'
 #disable-next-line BCP081
 resource StorageAccount_Resource 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: StorageAccount_var
-  location: location 
+  location: location
   kind: 'StorageV2'
   sku: {
     name: 'Standard_RAGRS'
@@ -139,7 +139,7 @@ resource LedgerDigestUploads_Resource 'Microsoft.Sql/servers/databases/ledgerDig
 // Configure the web application //
 ///////////////////////////////////
 
-// Create an App Service plan 
+// Create an App Service plan
 resource WebAppServicePlan_Resource 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: '${projectName}plan'
  location: location
@@ -157,11 +157,11 @@ resource WebApp_Resource 'Microsoft.Web/sites@2021-02-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    serverFarmId: WebAppServicePlan_Resource.id    
+    serverFarmId: WebAppServicePlan_Resource.id
  }
- 
+
  //Set the database connection string for the application
- 
+
  resource WebAppConnectionString_Resource 'config' = {
   name: 'connectionstrings'
   properties: {
@@ -170,7 +170,7 @@ resource WebApp_Resource 'Microsoft.Web/sites@2021-02-01' = {
       type: 'SQLAzure'
     }
   }
- } 
+ }
   //Define AppSetting to fetch the correct project from the GitHub Repository
  resource AppSetting 'config' = {
   name: 'appsettings'
@@ -191,7 +191,7 @@ resource sourceControl 'Microsoft.Web/sites/sourcecontrols@2021-02-01' = {
   dependsOn: [
          Server_Name_resource
        ]
-}  
+}
 
 output Servername    string = Server_Name_resource.properties.fullyQualifiedDomainName
 output DatabaseName  string = 'ContosoHR'

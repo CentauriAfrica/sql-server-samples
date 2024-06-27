@@ -111,7 +111,7 @@ Invoke-Sqlcmd -ServerInstance "tcp:$fullServerName" -Database $databaseName -Acc
 # Print parameters for the demo
 ######################################################################
 
-$app = Get-AzWebApp -Name $appName -ResourceGroupName $resourceGroupName 
+$app = Get-AzWebApp -Name $appName -ResourceGroupName $resourceGroupName
 Write-Host -ForegroundColor "green" "Resource group name: $resourceGroupName"
 Write-Host -ForegroundColor "green" "Database server name: $fullServerName"
 Write-Host -ForegroundColor "green" "Database name: $databaseName"

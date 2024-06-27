@@ -1,14 +1,14 @@
 ﻿/*======================================================================================
 Script: aspstate_sql2016_with_retry.sql
 
-Description: 
+Description:
 This script is based on the InstallSqlState.sql script but works with SQL 2016 In-Memory OLTP by replacing the following objects
 to in-memory and natively compiled stored procedures.
 
 ** Tables:
 	Converted the following table to In-Memory table:
 		- [dbo].[ASPStateTempSessions] (SessionId: NONCLUSTERED HASH PK (Bucket Count=33554432))
- 
+
 ** Stored Procedures:
 	Converted the following SPs to Native Compiled SPs:
 		- dbo.TempGetStateItemExclusive3
@@ -35,11 +35,11 @@ DECLARE @SQL nvarchar(max) = N'';
 SET @SQL = N'
 CREATE DATABASE [ASPState]
  CONTAINMENT = NONE
- ON  PRIMARY 
-	(NAME = N''ASPState'', FILENAME = N''' + @SQLDataFolder + 'ASPState.mdf'' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB ), 
+ ON  PRIMARY
+	(NAME = N''ASPState'', FILENAME = N''' + @SQLDataFolder + 'ASPState.mdf'' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB ),
  FILEGROUP [ASPState_mod] CONTAINS MEMORY_OPTIMIZED_DATA  DEFAULT
 	(NAME = N''ASPState_mod'', FILENAME = N''' + @SQLLogFolder + 'ASPState_mod'' , MAXSIZE = UNLIMITED)
- LOG ON 
+ LOG ON
 	(NAME = N''ASPState_log'', FILENAME = N''' + @SQLLogFolder + 'ASPState_log.ldf'' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB );
 
 ALTER DATABASE [ASPState] SET COMPATIBILITY_LEVEL = 130; ALTER DATABASE [ASPState] SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT=ON;'
@@ -75,11 +75,11 @@ CREATE TABLE [dbo].[ASPStateTempSessions]
 	[SessionItemLong] [varbinary](max) NULL,
 	[Flags] [int] NOT NULL DEFAULT ((0)),
 
-INDEX [Index_Expires] NONCLUSTERED 
+INDEX [Index_Expires] NONCLUSTERED
 (
 	[Expires] ASC
 ),
-PRIMARY KEY NONCLUSTERED HASH 
+PRIMARY KEY NONCLUSTERED HASH
 (
 	[SessionId]
 )WITH ( BUCKET_COUNT = 33554432)
@@ -89,7 +89,7 @@ GO
 CREATE TABLE [dbo].[ASPStateTempApplications](
 	[AppId] [int] NOT NULL,
 	[AppName] [char](280) NOT NULL,
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
 	[AppId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -131,7 +131,7 @@ AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_e
 	IF @LockedCheck=1
 	BEGIN
 		UPDATE dbo.ASPStateTempSessions
-        SET Expires = DATEADD(n, Timeout, @now), 
+        SET Expires = DATEADD(n, Timeout, @now),
             @lockAge = DATEDIFF(second, LockDate, @now),
             @lockCookie = LockCookie,
             @itemShort = NULL,
@@ -143,7 +143,7 @@ AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_e
 	ELSE
 	BEGIN
 		UPDATE dbo.ASPStateTempSessions
-        SET Expires = DATEADD(n, Timeout, @now), 
+        SET Expires = DATEADD(n, Timeout, @now),
             LockDate = @now,
             LockDateLocal = @nowlocal,
             @lockAge = 0,
@@ -154,7 +154,7 @@ AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_e
             @locked = 0,
             Locked = 1
         WHERE SessionId = @id
-        
+
 		IF @TextPtr IS NOT NULL
 			SELECT @TextPtr
 		
@@ -169,48 +169,48 @@ CREATE PROCEDURE [dbo].[TempGetStateItemExclusive3]
             @lockAge    int OUTPUT,
             @lockCookie int OUTPUT,
             @actionFlags int OUTPUT
-AS  
-BEGIN  
-    DECLARE @retry INT = 10;  
+AS
+BEGIN
+    DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				EXEC dbo.TempGetStateItemExclusive3_HK
-					 @id, 
-					 @itemShort = @itemShort OUTPUT, 
+					 @id,
+					 @itemShort = @itemShort OUTPUT,
 					 @locked = @locked OUTPUT,
 					 @lockAge = @lockAge OUTPUT,
 					 @lockCookie = @lockCookie OUTPUT,
 					 @actionFlags = @actionFlags OUTPUT
-									        
-            COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+									
+            COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-END;  
-GO  
+    END -- //While loop
+END;
+GO
 
 CREATE PROCEDURE [dbo].[TempInsertStateItemShort_HK]
 	@id	nvarchar(88),
@@ -218,31 +218,31 @@ CREATE PROCEDURE [dbo].[TempInsertStateItemShort_HK]
 	@timeout int
 WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
 AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')
- 
+
 	DECLARE @now AS datetime
 	DECLARE @nowLocal AS datetime
-            
+
 	SET @now = GETUTCDATE()
 	SET @nowLocal = GETDATE()
 
-	INSERT dbo.ASPStateTempSessions 
-		(SessionId, 
-		SessionItemShort, 
-		Timeout, 
-		Expires, 
-		Locked, 
+	INSERT dbo.ASPStateTempSessions
+		(SessionId,
+		SessionItemShort,
+		Timeout,
+		Expires,
+		Locked,
 		LockDate,
 		LockDateLocal,
 		LockCookie,
 		Created,
 		Flags,
-		SessionItemLong) 
-	VALUES 
-		(@id, 
-		@itemShort, 
-		@timeout, 
-		DATEADD(n, @timeout, @now), 
-		0, 
+		SessionItemLong)
+	VALUES
+		(@id,
+		@itemShort,
+		@timeout,
+		DATEADD(n, @timeout, @now),
+		0,
 		@now,
 		@nowLocal,
 		1,
@@ -250,7 +250,7 @@ AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_e
 		0,
 		NULL)
 
-	RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+	RETURN 0
 END
 GO
 
@@ -258,42 +258,42 @@ CREATE PROCEDURE [dbo].[TempInsertStateItemShort]
 	@id	nvarchar(88),
 	@itemShort varbinary(7000),
 	@timeout int
-AS  
-BEGIN  
-    DECLARE @retry INT = 10;  
+AS
+BEGIN
+    DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				EXEC dbo.TempInsertStateItemShort_HK @id, @itemShort, @timeout
-									        
-            COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+									
+            COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-END;  
-GO 
+    END -- //While loop
+END;
+GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemLong_HK]
     @id         nvarchar(88),
@@ -301,17 +301,17 @@ CREATE PROCEDURE [dbo].[TempUpdateStateItemLong_HK]
     @timeout    int,
     @lockCookie int
 WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
-AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')            
+AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')
 
 	UPDATE	dbo.ASPStateTempSessions
-    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()), 
+    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()),
             SessionItemLong = @itemLong,
             Timeout = @timeout,
             Locked = 0
     WHERE	SessionId = @id AND LockCookie = @lockCookie
 
-	RETURN 0   
-END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+	RETURN 0
+END
 GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemLong]
@@ -319,42 +319,42 @@ CREATE PROCEDURE [dbo].[TempUpdateStateItemLong]
     @itemLong   varbinary(max),
     @timeout    int,
     @lockCookie int
-AS  
-BEGIN  
-    DECLARE @retry INT = 10;  
+AS
+BEGIN
+    DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				EXEC dbo.TempUpdateStateItemLong_HK @id, @itemLong, @timeout, @lockCookie
-									        
-            COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+									
+            COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-END;  
-GO 
+    END -- //While loop
+END;
+GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemLongNullShort_HK]
     @id         nvarchar(88),
@@ -365,15 +365,15 @@ WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
 AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')
 
     UPDATE	dbo.ASPStateTempSessions
-    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()), 
-			SessionItemLong = @itemLong, 
+    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()),
+			SessionItemLong = @itemLong,
 			SessionItemShort = NULL,
 			Timeout = @timeout,
 			Locked = 0
     WHERE	SessionId = @id AND LockCookie = @lockCookie
 
-    RETURN 0        
-END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+    RETURN 0
+END
 GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemLongNullShort]
@@ -381,42 +381,42 @@ CREATE PROCEDURE [dbo].[TempUpdateStateItemLongNullShort]
     @itemLong   varbinary(max),
     @timeout    int,
     @lockCookie int
-AS  
-BEGIN  
-    DECLARE @retry INT = 10;  
+AS
+BEGIN
+    DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				EXEC dbo.TempUpdateStateItemLongNullShort_HK @id, @itemLong, @timeout, @lockCookie
-									        
-            COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+									
+            COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-END;  
-GO 
+    END -- //While loop
+END;
+GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemShort_HK]
     @id         nvarchar(88),
@@ -427,13 +427,13 @@ WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
 AS BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english' )
 
     UPDATE	dbo.ASPStateTempSessions
-    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()), 
-			SessionItemShort = @itemShort, 
+    SET		Expires = DATEADD(n, @timeout, GETUTCDATE()),
+			SessionItemShort = @itemShort,
 			Timeout = @timeout,
 			Locked = 0
     WHERE	SessionId = @id AND LockCookie = @lockCookie
 
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    RETURN 0
 END
 GO
 
@@ -442,42 +442,42 @@ CREATE PROCEDURE [dbo].[TempUpdateStateItemShort]
     @itemShort   varbinary(max),
     @timeout    int,
     @lockCookie int
-AS  
-BEGIN  
-    DECLARE @retry INT = 10;  
+AS
+BEGIN
+    DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				EXEC dbo.TempUpdateStateItemShort_HK @id, @itemShort, @timeout, @lockCookie
-									        
-            COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+									
+            COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-END;  
-GO 
+    END -- //While loop
+END;
+GO
 
 CREATE PROCEDURE [dbo].[CreateTempTables]
 AS
@@ -493,8 +493,8 @@ AS
         SessionItemShort    VARBINARY(7000) NULL,
         SessionItemLong     VARBINARY(max)  NULL,
         Flags               int             NOT NULL DEFAULT 0,
-             
-		PRIMARY KEY NONCLUSTERED HASH 
+
+		PRIMARY KEY NONCLUSTERED HASH
 		(
 			[SessionId]
 		)WITH ( BUCKET_COUNT = 33554432),
@@ -505,22 +505,22 @@ AS
     CREATE TABLE dbo.ASPStateTempApplications (
         AppId               int             NOT NULL PRIMARY KEY,
         AppName             char(280)       NOT NULL,
-    ) 
+    )
     CREATE NONCLUSTERED INDEX Index_AppName ON ASPStateTempApplications(AppName)
 
-RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[DeleteExpiredSessions]
 AS
     SET NOCOUNT ON
-    SET DEADLOCK_PRIORITY LOW 
+    SET DEADLOCK_PRIORITY LOW
 
     DECLARE @now datetime
-    SET @now = GETUTCDATE() 
+    SET @now = GETUTCDATE()
 
-    CREATE TABLE #tblExpiredSessions 
-    ( 
+    CREATE TABLE #tblExpiredSessions
+    (
         SessionId nvarchar(88) NOT NULL PRIMARY KEY
     )
 
@@ -529,10 +529,10 @@ AS
         FROM ASPStateTempSessions WITH (SNAPSHOT)
         WHERE Expires < @now
 
-    IF @@ROWCOUNT <> 0 
-    BEGIN 
+    IF @@ROWCOUNT <> 0
+    BEGIN
         DECLARE ExpiredSessionCursor CURSOR LOCAL FORWARD_ONLY READ_ONLY
-        FOR SELECT SessionId FROM #tblExpiredSessions 
+        FOR SELECT SessionId FROM #tblExpiredSessions
 
         DECLARE @SessionId nvarchar(88)
 
@@ -540,7 +540,7 @@ AS
 
         FETCH NEXT FROM ExpiredSessionCursor INTO @SessionId
 
-        WHILE @@FETCH_STATUS = 0 
+        WHILE @@FETCH_STATUS = 0
             BEGIN
                 DELETE FROM ASPStateTempSessions WHERE SessionId = @SessionId AND Expires < @now
                 FETCH NEXT FROM ExpiredSessionCursor INTO @SessionId
@@ -550,18 +550,18 @@ AS
 
         DEALLOCATE ExpiredSessionCursor
 
-    END 
+    END
 
     DROP TABLE #tblExpiredSessions
 
-RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[GetHashCode]
     @input tAppName,
     @hash int OUTPUT
 AS
-    /* 
+    /*
        This sproc is based on this C# hash function:
 
         int GetHashCode(string s)
@@ -582,7 +582,7 @@ AS
         divide our 32bit integer into the upper and lower
         16 bits to do our calculation.
     */
-       
+
     DECLARE @hi_16bit   int
     DECLARE @lo_16bit   int
     DECLARE @hi_t       int
@@ -594,23 +594,23 @@ AS
 
     SET @hi_16bit = 0
     SET @lo_16bit = 5381
-    
+
     SET @len = DATALENGTH(@input)
     SET @i = 1
-    
+
     WHILE (@i <= @len)
     BEGIN
         SET @c = ASCII(SUBSTRING(@input, @i, 1))
 
-        /* Formula:                        
+        /* Formula:
            hash = ((hash << 5) + hash) ^ c */
 
         /* hash << 5 */
         SET @hi_t = @hi_16bit * 32 /* high 16bits << 5 */
         SET @hi_t = @hi_t & 0xFFFF /* zero out overflow */
-        
+
         SET @lo_t = @lo_16bit * 32 /* low 16bits << 5 */
-        
+
         SET @carry = @lo_16bit & 0x1F0000 /* move low 16bits carryover to hi 16bits */
         SET @carry = @carry / 0x10000 /* >> 16 */
         SET @hi_t = @hi_t + @carry
@@ -651,7 +651,7 @@ BEGIN
     DECLARE @dot            int
     DECLARE @hyphen         int
     DECLARE @SqlToExec      nchar(4000)
- 
+
     SELECT @@ver = 7
     SELECT @version = @@Version
     SELECT @hyphen  = CHARINDEX(N' - ', @version)
@@ -680,36 +680,36 @@ AS
 	WHERE AppName = @appName
 
 	IF @appId IS NULL BEGIN
-		BEGIN TRAN        
+		BEGIN TRAN
 
 		SELECT @appId = AppId
 		FROM ASPStateTempApplications WITH (TABLOCKX)
 		WHERE AppName = @appName
-        
+
 		IF @appId IS NULL
 		BEGIN
 			EXEC GetHashCode @appName, @appId OUTPUT
-            
+
 			INSERT ASPStateTempApplications
 			VALUES
 			(@appId, @appName)
-            
-			IF @@ERROR = 2627 
+
+			IF @@ERROR = 2627
 			BEGIN
 				DECLARE @dupApp tAppName
-            
+
 				SELECT @dupApp = RTRIM(AppName)
-				FROM ASPStateTempApplications 
+				FROM ASPStateTempApplications
 				WHERE AppId = @appId
-                
-				RAISERROR('SQL session state fatal error: hash-code collision between applications ''%s'' and ''%s''. Please rename the 1st application to resolve the problem.', 
+
+				RAISERROR('SQL session state fatal error: hash-code collision between applications ''%s'' and ''%s''. Please rename the 1st application to resolve the problem.',
 							18, 1, @appName, @dupApp)
 			END
 		END
 		COMMIT
 	END
 
-RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+RETURN 0
 
 GO
 
@@ -725,15 +725,15 @@ AS
     DECLARE @now AS datetime
     SET @now = GETUTCDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 
 				UPDATE ASPStateTempSessions
-				SET Expires = DATEADD(n, Timeout, @now), 
+				SET Expires = DATEADD(n, Timeout, @now),
 					@locked = Locked,
 					@lockDate = LockDateLocal,
 					@lockCookie = LockCookie,
@@ -753,31 +753,31 @@ AS
 				IF @length IS NOT NULL BEGIN
 					SELECT @textptr
 				END
-				COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+				COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
-    END -- //While loop  
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    END -- //While loop
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempGetStateItem2]
@@ -792,14 +792,14 @@ AS
     DECLARE @now AS datetime
     SET @now = GETUTCDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION; 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE ASPStateTempSessions
-				SET Expires = DATEADD(n, Timeout, @now), 
+				SET Expires = DATEADD(n, Timeout, @now),
 					@locked = Locked,
 					@lockAge = DATEDIFF(second, LockDate, @now),
 					@lockCookie = LockCookie,
@@ -819,31 +819,31 @@ AS
 				IF @length IS NOT NULL BEGIN
 					SELECT @textptr
 				END
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempGetStateItem3]
@@ -859,14 +859,14 @@ AS
     DECLARE @now AS datetime
     SET @now = GETUTCDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION; 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE ASPStateTempSessions
-				SET Expires = DATEADD(n, Timeout, @now), 
+				SET Expires = DATEADD(n, Timeout, @now),
 					@locked = Locked,
 					@lockAge = DATEDIFF(second, LockDate, @now),
 					@lockCookie = LockCookie,
@@ -897,31 +897,31 @@ AS
 				IF @length IS NOT NULL BEGIN
 					SELECT @textptr
 				END
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempGetStateItemExclusive]
@@ -938,15 +938,15 @@ AS
 
     SET @now = GETUTCDATE()
     SET @nowLocal = GETDATE()
-            
-	DECLARE @retry INT = 10;  
+
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION; 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE ASPStateTempSessions
-				SET Expires = DATEADD(n, Timeout, @now), 
+				SET Expires = DATEADD(n, Timeout, @now),
 					LockDate = CASE Locked
 						WHEN 0 THEN @now
 						ELSE LockDate
@@ -977,31 +977,31 @@ AS
 				IF @length IS NOT NULL BEGIN
 					SELECT @textptr
 				END
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempGetStateItemExclusive2]
@@ -1019,14 +1019,14 @@ AS
     SET @now = GETUTCDATE()
     SET @nowLocal = GETDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;             
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE ASPStateTempSessions
-				SET Expires = DATEADD(n, Timeout, @now), 
+				SET Expires = DATEADD(n, Timeout, @now),
 					LockDate = CASE Locked
 						WHEN 0 THEN @now
 						ELSE LockDate
@@ -1061,31 +1061,31 @@ AS
 				IF @length IS NOT NULL BEGIN
 					SELECT @textptr
 				END
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempGetVersion]
@@ -1094,174 +1094,174 @@ AS
     SELECT @ver = '2'
     RETURN 0
 GO
- 
+
 CREATE PROCEDURE [dbo].[TempInsertStateItemLong]
     @id         nvarchar(88),
     @itemLong   image,
     @timeout    int
-AS    
+AS
     DECLARE @now AS datetime
     DECLARE @nowLocal AS datetime
-            
+
     SET @now = GETUTCDATE()
     SET @nowLocal = GETDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION; 
-				INSERT ASPStateTempSessions 
-					(SessionId, 
-						SessionItemLong, 
-						Timeout, 
-						Expires, 
-						Locked, 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
+				INSERT ASPStateTempSessions
+					(SessionId,
+						SessionItemLong,
+						Timeout,
+						Expires,
+						Locked,
 						LockDate,
 						LockDateLocal,
-						LockCookie) 
-				VALUES 
-					(@id, 
-						@itemLong, 
-						@timeout, 
-						DATEADD(n, @timeout, @now), 
-						0, 
+						LockCookie)
+				VALUES
+					(@id,
+						@itemLong,
+						@timeout,
+						DATEADD(n, @timeout, @now),
+						0,
 						@now,
 						@nowLocal,
 						1)
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempInsertUninitializedItem]
     @id         nvarchar(88),
     @itemShort  varbinary(7000),
     @timeout    int
-AS    
+AS
 
     DECLARE @now AS datetime
     DECLARE @nowLocal AS datetime
-            
+
     SET @now = GETUTCDATE()
     SET @nowLocal = GETDATE()
 
-	DECLARE @retry INT = 10;  
+	DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
-				INSERT ASPStateTempSessions 
-					(SessionId, 
-					SessionItemShort, 
-					Timeout, 
-					Expires, 
-					Locked, 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
+				INSERT ASPStateTempSessions
+					(SessionId,
+					SessionItemShort,
+					Timeout,
+					Expires,
+					Locked,
 					LockDate,
 					LockDateLocal,
 					LockCookie,
-					Flags) 
-				VALUES 
-					(@id, 
-					@itemShort, 
-					@timeout, 
-					DATEADD(n, @timeout, @now), 
-					0, 
+					Flags)
+				VALUES
+					(@id,
+					@itemShort,
+					@timeout,
+					DATEADD(n, @timeout, @now),
+					0,
 					@now,
 					@nowLocal,
 					1,
 					1)
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempReleaseStateItemExclusive]
     @id         nvarchar(88),
     @lockCookie int
 AS
-DECLARE @retry INT = 10;  
+DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
             BEGIN TRANSACTION;
 				UPDATE	ASPStateTempSessions
-				SET		Expires = DATEADD(n, Timeout, GETUTCDATE()), 
+				SET		Expires = DATEADD(n, Timeout, GETUTCDATE()),
 						Locked = 0
 				WHERE	SessionId = @id AND LockCookie = @lockCookie
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
 
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempRemoveStateItem]
@@ -1269,79 +1269,79 @@ CREATE PROCEDURE [dbo].[TempRemoveStateItem]
     @lockCookie int
 AS
 
-DECLARE @retry INT = 10;  
+DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				DELETE	ASPStateTempSessions
 				WHERE	SessionId = @id AND LockCookie = @lockCookie
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-	RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+	RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempResetTimeout]
-    @id         nvarchar(88)           
+    @id         nvarchar(88)
 AS
-DECLARE @retry INT = 10;  
+DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION;  
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE	ASPStateTempSessions
 				SET		Expires = DATEADD(n, Timeout, GETUTCDATE())
 				WHERE	SessionId = @id
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
-    
-	RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+	RETURN 0
 GO
 
 CREATE PROCEDURE [dbo].[TempUpdateStateItemShortNullLong]
@@ -1349,44 +1349,44 @@ CREATE PROCEDURE [dbo].[TempUpdateStateItemShortNullLong]
     @itemShort  varbinary(7000),
     @timeout    int,
     @lockCookie int
-AS    
-DECLARE @retry INT = 10;  
+AS
+DECLARE @retry INT = 10;
 	
-    WHILE (@retry > 0)  
-    BEGIN  
-        BEGIN TRY  
-            BEGIN TRANSACTION; 
+    WHILE (@retry > 0)
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
 				UPDATE	ASPStateTempSessions
-				SET		Expires = DATEADD(n, @timeout, GETUTCDATE()), 
-						SessionItemShort = @itemShort, 
-						SessionItemLong = NULL, 
+				SET		Expires = DATEADD(n, @timeout, GETUTCDATE()),
+						SessionItemShort = @itemShort,
+						SessionItemLong = NULL,
 						Timeout = @timeout,
 						Locked = 0
 				WHERE	SessionId = @id AND LockCookie = @lockCookie
-			COMMIT TRANSACTION;  
-            SET @retry = 0;  -- //Stops the loop.  
-        END TRY  
+			COMMIT TRANSACTION;
+            SET @retry = 0;  -- //Stops the loop.
+        END TRY
 
-        BEGIN CATCH  
-            SET @retry -= 1;  
+        BEGIN CATCH
+            SET @retry -= 1;
 
-            IF (@retry > 0 AND  
-                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)  
-                )  
-            BEGIN  
-                IF XACT_STATE() = -1  
-                    ROLLBACK TRANSACTION;  
+            IF (@retry > 0 AND
+                ERROR_NUMBER() in (41302, 41305, 41325, 41301, 41839, 1205)
+                )
+            BEGIN
+                IF XACT_STATE() = -1
+                    ROLLBACK TRANSACTION;
 
-                WAITFOR DELAY '00:00:00.001';  
-            END  
-            ELSE  
-            BEGIN  
-                PRINT 'Suffered an error for which Retry is inappropriate.';  
-                THROW;  
-            END  
-        END CATCH  
+                WAITFOR DELAY '00:00:00.001';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Suffered an error for which Retry is inappropriate.';
+                THROW;
+            END
+        END CATCH
 
     END -- //While loop
 
-    RETURN 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    RETURN 0
 GO

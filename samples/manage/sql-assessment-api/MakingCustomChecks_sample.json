@@ -1,7 +1,7 @@
 {
 	"schemaVersion": "1.0",
 	"version": "0.2",
-	"name": "Custom Checks Ruleset", 
+	"name": "Custom Checks Ruleset",
 	"rules":[
 		{
 			"target": {

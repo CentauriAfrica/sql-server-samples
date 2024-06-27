@@ -81,7 +81,7 @@ done
 
 # Reset kube
 #
-sudo apt-get purge -y kubeadm --allow-change-held-packages 
+sudo apt-get purge -y kubeadm --allow-change-held-packages
 sudo apt-get purge -y kubectl --allow-change-held-packages
 sudo apt-get purge -y kubelet --allow-change-held-packages
 sudo apt-get purge -y kubernetes-cni --allow-change-held-packages

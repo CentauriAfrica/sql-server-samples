@@ -21,13 +21,13 @@ export REGION_NAME=$region
 export RESOURCE_GROUP=$resourcegroup
 export KUBERNETES_VERSION=$version
 export AKS_NAME=bdcakscluster
- 
+
 #Set Azure subscription current in use
 az account set --subscription $subscription
 
 #Create Azure Resource Group
 az group create -n $RESOURCE_GROUP -l $REGION_NAME
- 
+
 #Create AKS Cluster
 az aks create \
     --resource-group $RESOURCE_GROUP \

@@ -1,5 +1,5 @@
 ## Run this sample
-Note: Run this project on a machine joined to a domain that is federated with Azure Active Directory. A contained database user representing your Azure AD principal, or one of the groups, you belong to, must exist in the database and must have the CONNECT permission. 
+Note: Run this project on a machine joined to a domain that is federated with Azure Active Directory. A contained database user representing your Azure AD principal, or one of the groups, you belong to, must exist in the database and must have the CONNECT permission.
 
 1. Before building and running the Integrated project:
 

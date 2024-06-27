@@ -74,7 +74,7 @@ To run this sample, you need the following prerequisites.
     }
     ```
 6. <a name=restapi></a>Any app you create is also accessible using a RESTful web service that is [Swagger](swagger.io) compliant. See: [Consume an app deployed on SQL Server Big Data Clusters using a RESTful web service](https://docs.microsoft.com/en-us/sql/big-data-cluster/app-consume).
-   
+
 7. You can clean up the sample by running the following commands:
     ```bash
     # delete app

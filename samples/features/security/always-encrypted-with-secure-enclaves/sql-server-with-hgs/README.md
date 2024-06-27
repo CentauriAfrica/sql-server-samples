@@ -142,12 +142,12 @@ Perform the below steps before you show the demo.
    1. Click **OK** to close the statement window.
 
 1. As a Security Administrator, provision a column master key for Always Encrypted.
-   1. In Object Explorer of the Security Administrator's instance of SSMS, expand the node of the **ContosoHR** database and navigate to **Security/ Always Encrypted Keys/Column Master Keys**.  
+   1. In Object Explorer of the Security Administrator's instance of SSMS, expand the node of the **ContosoHR** database and navigate to **Security/ Always Encrypted Keys/Column Master Keys**.
    1. Right-click on the **Column Master Keys** folder and select **New Column Master Key…**.
       ![NewCMK](img/new-cmk.png)
    1. Enter a column master key name: **CMK1**.
    1. Select **Windows Certificate Store - Current User**.
-   1. Make sure **Allow enclave computations** is selected.  
+   1. Make sure **Allow enclave computations** is selected.
       ![NewCMK](img/new-cmk-dialog.png)
    1. Click **Generate Certificate** to create a new certificate to be used as a column master key.
    1. Click **OK**.
@@ -159,7 +159,7 @@ Perform the below steps before you show the demo.
    1. Click **OK**.
 1. As a Security Administrator, encrypt the **SSN** and **Salary** columns in place, using the secure enclave.
     1. In Security Administrator's instance of SSMS, select the **EncryptColumns.sql** tab and click **F5** to execute the query.
-1. Switch back to DBA's instance of SSMS, select the **ListAllEmployees.sql** tab and click **F5** to execute the query again. Now the query should show the encrypted data in the **SSN** and **Salary** columns. As both columns are encrypted, the DBA cannot see the data in plaintext. 
+1. Switch back to DBA's instance of SSMS, select the **ListAllEmployees.sql** tab and click **F5** to execute the query again. Now the query should show the encrypted data in the **SSN** and **Salary** columns. As both columns are encrypted, the DBA cannot see the data in plaintext.
 
    ![Encrypted results](./img/ssms-encrypted-results.png)
 
@@ -168,7 +168,7 @@ Perform the below steps before you show the demo.
 1. Inspect the queries the demo application sends to the database, after encrypting the columns.
    1. In DBA's instance of SSMS, select the **Demo Live Data** window, which should contain a table with some events your demo application triggered.
 
-   1. Double click on the statement column in the last row of the table to see the last query the application sent to the database. Inspect the query statement. Note that the query statement the query sends to the database has not changed - it still contains pattern matching using the **LIKE** predicate on the **SSN** column and the range comparison on the **Salary** column, as well as sorting  (the **ORDER BY** clause) by **SSN** or **Salary**. 
+   1. Double click on the statement column in the last row of the table to see the last query the application sent to the database. Inspect the query statement. Note that the query statement the query sends to the database has not changed - it still contains pattern matching using the **LIKE** predicate on the **SSN** column and the range comparison on the **Salary** column, as well as sorting  (the **ORDER BY** clause) by **SSN** or **Salary**.
    1. Locate the value of query parameters: **@SSNSearchPattern**, **@MinSalary**, **@MaxSalary**. Note that the values of the parameters are now encrypted – the client driver inside the web app transparently encrypts parameters corresponding to encrypted columns, before sending the query to the database. Not only does not the DBA have access to sensitive data in the database, but the DBA cannot see the plaintext values of query parameters used to process that data either.
 
      ![XEventSessionColumnsAfterEncryption](img/xevent-after-encryption.png)
@@ -185,6 +185,6 @@ The unique benefit of Always Encrypted with secure enclaves is that it allows yo
 
 In Security Administrator's instance of SSMS:
 
-1. Open and execute **tsql-scripts/DecryptColumns.sql**. 
-1. Open and execute **tsql-scripts/DropKeys.sql**. 
+1. Open and execute **tsql-scripts/DecryptColumns.sql**.
+1. Open and execute **tsql-scripts/DropKeys.sql**.
 1. Close both SSMS windows.

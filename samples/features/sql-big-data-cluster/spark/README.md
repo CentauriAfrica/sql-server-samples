@@ -26,7 +26,7 @@ SQL Server Big Data cluster bundles Spark and HDFS together with SQL server. Azu
 
 ## Instructions on how to run in Azure Data Studio
 
-1. From Azure Data Studio Connect to the SQL Server Master instance in a big data cluster. 
+1. From Azure Data Studio Connect to the SQL Server Master instance in a big data cluster.
 
 2. Right-click on the server name, select **Manage**, switch to **SQL Server Big Data Cluster** tab, and open the notebook in Azure Data Studio.  Wait for the “Kernel” and the target context (“Attach to”) to be populated. If required set the relevant “Kernel” ( e.g **PySpark3** )  and **Attach to** needs to be the IP address of your big data cluster endpoint.
 

@@ -1,5 +1,5 @@
 --================================================================================
--- Drop Table template for Azure SQL Database and Azure Synapse Analytics Database 
+-- Drop Table template for Azure SQL Database and Azure Synapse Analytics Database
 --================================================================================
 IF EXISTS (
   SELECT *

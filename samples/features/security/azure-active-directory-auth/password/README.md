@@ -12,7 +12,7 @@ string username = "bob@cqclinic.onmicrosoft.com"; // replace with your username
 ```
 Note: A contained user database must exist and a contained database user representing the specified Azure AD user or one of the groups, the specified Azure AD user belongs to, must exist in the database and must have the CONNECT permission (except for AAD server admin or group)
 
-Please note that  
+Please note that
 builder["Authentication"] method is set to SqlAuthenticationMethod.ActiveDirectoryPassword.
 
 ![screenshot of visual studio showing builder fields to change] (/samples/features/security/azure-active-directory-auth/img/vs-authentication-method-password.png)

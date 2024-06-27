@@ -3,7 +3,7 @@ DELETE FROM [dbo].[AspNetRoles];
 DELETE FROM [dbo].[AspNetUsers];
 DELETE FROM [dbo].[AspNetUserRoles];
 GO
- 
+
 DECLARE @SSN1 char(11) = '795-73-9833'; DECLARE @Salary1 Money = 61692.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN1, 'Catherine', 'Abel', @Salary1);
 DECLARE @SSN2 char(11) = '990-00-6818'; DECLARE @Salary2 Money = 990.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN2, 'Kim', 'Abercrombie', @Salary2);
 DECLARE @SSN3 char(11) = '009-37-3952'; DECLARE @Salary3 Money = 5684.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN3, 'Frances', 'Adams', @Salary3);
@@ -114,7 +114,7 @@ DECLARE @SSN108 char(11) = '763-33-5650'; DECLARE @Salary108 Money = 59254.00; I
 DECLARE @SSN109 char(11) = '658-41-8532'; DECLARE @Salary109 Money = 35364.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN109, 'Twanna', 'Evans', @Salary109);
 DECLARE @SSN110 char(11) = '943-41-6011'; DECLARE @Salary110 Money = 76201.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN110, 'Carolyn', 'Farino', @Salary110);
 DECLARE @SSN111 char(11) = '691-30-8623'; DECLARE @Salary111 Money = 39600.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN111, 'Geri', 'Farrell', @Salary111);
-DECLARE @SSN112 char(11) = '361-08-3217'; DECLARE @Salary112 Money = 3704.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN112, 'François', 'Ferrier', @Salary112);
+DECLARE @SSN112 char(11) = '361-08-3217'; DECLARE @Salary112 Money = 3704.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN112, 'Franï¿½ois', 'Ferrier', @Salary112);
 DECLARE @SSN113 char(11) = '827-51-1487'; DECLARE @Salary113 Money = 78467.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN113, 'Kathie', 'Flood', @Salary113);
 DECLARE @SSN114 char(11) = '483-93-0057'; DECLARE @Salary114 Money = 77552.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN114, 'John', 'Ford', @Salary114);
 DECLARE @SSN115 char(11) = '738-37-1607'; DECLARE @Salary115 Money = 34381.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN115, 'Garth', 'Fort', @Salary115);
@@ -218,7 +218,7 @@ DECLARE @SSN212 char(11) = '710-73-5330'; DECLARE @Salary212 Money = 2258.00; IN
 DECLARE @SSN213 char(11) = '321-14-1319'; DECLARE @Salary213 Money = 30158.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN213, 'Scott', 'MacDonald', @Salary213);
 DECLARE @SSN214 char(11) = '340-75-5874'; DECLARE @Salary214 Money = 10228.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN214, 'Kathy', 'Marcovecchio', @Salary214);
 DECLARE @SSN215 char(11) = '043-85-0648'; DECLARE @Salary215 Money = 46100.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN215, 'Melissa', 'Marple', @Salary215);
-DECLARE @SSN216 char(11) = '253-33-7509'; DECLARE @Salary216 Money = 46267.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN216, 'Frank', 'Mart¡nez', @Salary216);
+DECLARE @SSN216 char(11) = '253-33-7509'; DECLARE @Salary216 Money = 46267.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN216, 'Frank', 'Martï¿½nez', @Salary216);
 DECLARE @SSN217 char(11) = '335-68-4629'; DECLARE @Salary217 Money = 92921.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN217, 'Chris', 'Maxwell', @Salary217);
 DECLARE @SSN218 char(11) = '535-30-6577'; DECLARE @Salary218 Money = 60264.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN218, 'Sandra', 'Maynard', @Salary218);
 DECLARE @SSN219 char(11) = '613-34-9127'; DECLARE @Salary219 Money = 70620.00; INSERT INTO [dbo].[Employees] ([SSN], [FirstName], [LastName], [Salary]) VALUES (@SSN219, 'Walter', 'Mays', @Salary219);

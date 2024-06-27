@@ -1,5 +1,5 @@
 -- ========================================================================
--- Alter external data source template for Azure Synapse Analytics Database 
+-- Alter external data source template for Azure Synapse Analytics Database
 -- ========================================================================
 
 ALTER EXTERNAL DATA SOURCE <data_source_name, sysname, sample_data_source> SET

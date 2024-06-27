@@ -2,7 +2,7 @@
 	"schemaVersion": "1.0",
 	"version": "1.1",
 	"name": "Custom Ruleset",
-    "rules":[        
+    "rules":[
       {
         "target": {
           "type": "Database",
@@ -34,7 +34,7 @@
                     "platform": [ "Windows", "Linux" ]
 				},
 				"implementation": {
-					"useDatabase": true, 
+					"useDatabase": true,
                     "query": "SELECT (total - used)/total AS space_available_rel, total as space_total, used as space_used, total - used as space_available FROM ( SELECT SUM(a.size)/128.0 AS total, SUM(fileproperty(a.name,'SpaceUsed'))/128.0 AS used FROM dbo.sysfiles a WHERE groupid <> 0)data;"
                 }
 			}

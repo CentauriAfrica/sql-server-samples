@@ -21,7 +21,7 @@ $ResourceGroup=read-host -Prompt "Enter Resource Group Name"
 $SqlArcResources = Get-AzResource -ExpandProperties -ResourceType Microsoft.AzureData/sqlServerInstances -ResourceGroupName $ResourceGroup
 foreach ($r in $SqlArcResources) {
     Write-Host ("Migrating resource: {0}" -f $r.Name)
-    
+
     if ( ! ($r.Properties.containerResourceId -match "Microsoft.HybridCompute/machines") ) {
         $arcResource = Get-AzResource -ResourceType Microsoft.HybridCompute/machines -Name $r.Properties.containerResourceId
         if($null -eq $arcResource) {

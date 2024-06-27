@@ -1,6 +1,6 @@
 # Release notes for SQL Assessment API
 
-This article provides details about updates, improvements, and bug fixes for the current and previous versions of SQL Assessment API. 
+This article provides details about updates, improvements, and bug fixes for the current and previous versions of SQL Assessment API.
 
 To start working with the API, install the SQL Assessment Extention to Azure Data Studio or utilize either the SqlServer module or SMO.
 
@@ -13,6 +13,166 @@ Download: [Download SqlServer module](https://www.powershellgallery.com/packages
 Download: [SMO NuGet Package](https://www.nuget.org/packages/Microsoft.SqlServer.SqlManagementObjects)
 
 You can use GitHub issues to provide feedback to the product team.
+
+## December 2022 - 1.1.17
+
+Version: SqlServer PowerShell module, SqlManagementObjects (SMO) package: not updated
+
+### What's new
+
+- New rules:
+  - 98 recommendations based on SQL Server error log content
+  - Availability database count
+  - Availability replica recovery health
+  - Columnstore indexes with large page memory model
+  - High SQL compilations frequency
+  - High cursor requests frequency
+  - Backup files on a separate physical location
+  - Database mirroring
+  - High deadlock frequency
+  - SQL Server on a domain controller
+  - Error log retention settings
+  - High free space scans rate
+  - Full scans vs index searches
+  - High latch wait time
+  - Excessive lazy writes
+  - Lock requests per batch
+  - Excessive lock waits
+  - Memory grants pending
+  - Non-default value for 'min server memory (MB)' option
+  - Non-default value for 'nested triggers' option
+  - High forwarded records rate
+  - Sleeping sessions with open transactions
+  - Orphaned server audit specification
+  - Orphaned database audit specification
+  - Low page life expectancy
+  - High page lookups frequency
+  - High page split rate
+  - High SQL recompilation rate
+  - Non-default value for 'remote access' option
+  - Non-default value for 'remote login timeout (s)' option
+  - Frequent scan point revalidations
+  - Non-default value for 'server trigger recursion' option
+  - Option 'show advanced options' is enabled
+  - Tempdb data files initial size
+  - High Wait for the worker
+  - High transaction log disk response time
+  - High Network IO
+  - High non-Page latch waits
+  - High Page IO latch waits
+  - High Page Latch waits
+  - High Workfiles Created per second
+  - Low Worktables from Cache ratio
+  - High Worktables Created per second
+- New probes:
+  - [Performance](./docs/Reference/Probes/Performance.md) probe type
+  - BasicPerformance
+  - AuditSpecs
+  - ComputerSystem
+  - DatabaseBackupsMedia
+  - DatabaseMirroring
+  - ErrorLog
+  - ServerAudits
+  - ServerDatabasesProperties
+  - SysOpenTransactions
+- New transformations:
+  - [Performance](./docs/Reference/DataTransformation/performance.md) counter [data transformation](./docs/Customization/DataTransformation.md)
+
+### Bug fixes and improvements
+
+- Add [join](./docs/Reference/DataTransformation/aggregate.md#join) string [aggregate function](./docs/Reference/DataTransformation/aggregate.md#aggregate-functions) new parameters:
+  - **distinct** specifies whether duplicates should be eliminated
+  - **comparison** specifies [StringComparison](https://learn.microsoft.com/dotnet/api/system.stringcomparison) used by the aggregate function
+- Add **ag_replica_recovery_health** variable to the **AGConfiguration** probe
+- Add **age_days** to **ErrorLogInfo** probe
+- Add **remote_access**, **remote_login_timeout**, **server_trigger_recursion**, and **default_language** to **SysConfiguration** probe
+- Fix warning message on missing permissions and other requirements
+- Fix help link for DbSpaceAvailable check ([GitHub #1035](https://github.com/microsoft/sql-server-samples/issues/1035))
+- Fix falsely flagging deprecated features in job steps ([GitHub #1025](https://github.com/microsoft/sql-server-samples/issues/1025))
+- Fix configured to active value comparison for Max and Min server memory
+- Fix duplicate messages for Azure disk checks
+- Fix TF834 check triggered when no columnstore index is in use
+- Remove Server target type filter from probes which work for databases
+
+## July 2022 - 1.1.9
+
+Version: SqlServer PowerShell module: [22.0.30-preview](https://www.powershellgallery.com/packages/SqlServer/22.0.30-preview), SqlManagementObjects (SMO) package: not updated
+
+### What's new
+
+- New rules:
+  - Access check cache options ratio
+  - Availability group listener network mode
+  - Availability group failure-condition level
+  - Availability group health check timeout
+  - Availability replica connection state
+  - Availability replica synchronization health
+  - Availability database automatic failover readiness
+  - Availability database joined state
+  - Azure data disk striping
+  - Database mirroring endpoint encryption
+  - Database with unavailable state
+  - Maximum number of Availability Groups
+  - Not supported value for 'default full-text language' option
+  - Non-default values for access check cache options
+  - Option 'disallow results from triggers' is disabled
+  - Setting 'Autogrow' for data files
+  - Tables with more indexes than columns
+  - TempDb and user databases should not share volumes
+- New Probes:
+  - AGConfiguration
+  - AGDatabases
+  - AGEndpoints
+  - AGListener
+  - DatabaseSharedVolumes
+  - DatabasesState
+  - SysFullTextLanguages
+  - TablesInformation
+- Added 'MaxCheckResults' configuration option to limit assessment output
+
+### Bug fixes and improvements
+
+- The following rules are not run for Linux targets now:
+  - Indexes keys with more than @{threshold} bytes
+  - MAXDOP set in accordance with CPU count
+  - 'STRelate' and 'STAsBinary' functions unexpected results due to TF 6533
+  - TF 4199 enables query optimizer fixes
+  - TF 6532 enables performance improvements for spatial data
+  - TF 8015 disables auto-detection and NUMA setup
+  - TF 8744 disables pre-fetching for Nested Loop operator
+  - TF 9347 disables batch mode for sort operator
+  - TF 9349 disables batch mode for top N sort operator
+  - TF 9389 enables dynamic memory grant for batch mode operators
+  - TF 9476 causes SQL Server to generate plan using Simple Containment assumption
+  - TF 9481 enables Legacy CE model
+- Improved performance of idex related probes and checks
+- Improved performance of other probes
+- Affinity 64 and Affinity 64 IO masks are checked on 64-bit platforms only
+- Instant File Initialization check is not run for SQL Server 2016 without service packs
+- Fixed requirements processing for checks
+- 'Max allowed memory' and 'Max server memory exceeds system memory' checks are not run for SQL Server Managed Instance now
+- Updated 'Latest cumulative update' check
+- 'Stored procedure naming' check severity changed to Low
+- 'Uncompressed database tables and indexes' gives more details in the message
+- 'SQL logins have weak passwords' now checks for empty passwords and password equal to login
+- Non-default value for 'common criteria compliance enabled' option
+- Option 'backup compression default' is disabled
+- Replaced DatabaseFileLocation probe with DatabaseMasterFiles in the following rules:
+  - Azure disk caching for data files
+  - Azure disk caching for transaction logs
+  - Data files on Azure data disks
+  - Storage spaces disk column count
+  - Tempdb files on Azure temp drive
+  - Use premium SSDs for SQL Server data files
+- Improved probes
+  - OsSysMemory
+  - ServerProperties
+  - TopUncompressedTables
+  - ServerProperties
+  - WeakPassword
+- Removed rules:
+  - LoginEqPassword
+  - LoginNoPassword
 
 ## December 2021 - 1.1.0
 
@@ -108,9 +268,9 @@ Version: SqlServer PowerShell module wasn't updated, SqlManagementObjects (SMO) 
 
 ### Bug fixes and improvements
 
-- Updated the 'LatestCU' rule with the latest CU versions 
-- Updated the 'ReplErrors24H' rule to collect information for all 'Publisher' databases 
-- Fixed an issue with local variables used for displaying extended details in messages 
+- Updated the 'LatestCU' rule with the latest CU versions
+- Updated the 'ReplErrors24H' rule to collect information for all 'Publisher' databases
+- Fixed an issue with local variables used for displaying extended details in messages
 - Fixed an issue with the wrong Linux target type for the 'PriorityBoostOn' rule
 
 ## December 2020 - 1.0.302
@@ -151,7 +311,7 @@ Version: SqlServer module 21.1.18226, SqlManagementObjects (SMO) package wasn't 
 
 - Added new types of probes in addition to SQL and EXTERNAL: CMDSHELL, WMI, REGISTRY, POWERSHELL
 - Enabling/disabling database checks for particular SQL Server instances (by instance name)
-- Added 40 rules, including  
+- Added 40 rules, including
   - Ad Hoc Distributed Queries are enabled
   - Affinity Mask and Affinity I/O Mask overlapping
   - Auto Soft NUMA should be enabled

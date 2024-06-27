@@ -12,4 +12,4 @@ Sample data warehouse that illustrates loading data into Azure SQL Data Warehous
 
 __[AdventureWorks](adventure-works/)__
 
-Sample databases and Analysis Services models for use with SQL Server. 
+Sample databases and Analysis Services models for use with SQL Server.

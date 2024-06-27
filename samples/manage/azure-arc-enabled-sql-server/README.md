@@ -18,7 +18,7 @@ Use the following steps to migrate your existing SQL Server - Azure Arc resource
     curl https://raw.githubusercontent.com/microsoft/sql-server-samples/master/samples/manage/azure-arc-enabled-sql-server/migrate-to-azure-arc-data.ps1 -o migrate-to-azure-arc-data.ps1
     ```
 
-3. Run the script.  
+3. Run the script.
 
     ```console
    ./migrate-to-azure-arc-data.ps1

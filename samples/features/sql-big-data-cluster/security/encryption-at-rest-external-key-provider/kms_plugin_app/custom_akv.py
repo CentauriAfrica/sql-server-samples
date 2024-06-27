@@ -54,7 +54,7 @@ def get_key(json_key_attributes_dict, pin, version):
 
     # JsonWebKeyResponse expects integer inputs and converts them to byte array
     # However AKV SDK already provides byte arrays for Exponent and Modulus.
-    # We will instantiate the object with a dummy value and then overwrite the 
+    # We will instantiate the object with a dummy value and then overwrite the
     # exponent and module value.
     #
     dummy_val = 1

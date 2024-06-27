@@ -6,7 +6,7 @@ $publicCertificateFile = $parameters['publicCertificateFile']
 
 $Assem = @()
 
-$Source = @" 
+$Source = @"
 
 using System;
 using System.IO;
@@ -44,7 +44,7 @@ namespace CL
         /// <summary>
         /// ResetConnectionSkipTran TDS Message Status
         /// Reset the connection before processing event but do not modify the transaction
-        /// state (the state will remain the same before and after the reset). 
+        /// state (the state will remain the same before and after the reset).
         /// </summary>
         ResetConnectionSkipTran = 0x10
     }
@@ -622,19 +622,28 @@ function Using-Object
 Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp -ErrorAction SilentlyContinue
 
 $preLoginMessage = "AAAQAAYBABYAAQUAFwAk/wAAAAEAAACZ2dq6TF91Tqd3QhqNHRpv9/WwhLbfCUO6JBKeUqXXDAAAAAA="
-$tcpClient = New-Object System.Net.Sockets.TcpClient($hostName, $port)
+$stream = $null
 
+if($hostName -like "\\.\pipe\*") {
+    $pipeName = $hostName.Substring(9)
+    $stream = New-Object System.IO.Pipes.NamedPipeClientStream(".", $pipeName, [System.IO.Pipes.PipeDirection]::InOut, [System.IO.Pipes.PipeOptions]::None, [System.Security.Principal.TokenImpersonationLevel]::Impersonation)
+    $stream.Connect()
+}
+else {
+    $tcpClient = New-Object System.Net.Sockets.TcpClient($hostName, $port)
+    $stream = $tcpClient.GetStream()
+}
 
-Using-Object($stream = New-Object CL.TDSStream($tcpClient.GetStream(), [TimeSpan]::FromSeconds(30), 4096)) {
+Using-Object($stream = New-Object CL.TDSStream($stream, [TimeSpan]::FromSeconds(30), 4096)) {
     $stream.CurrentOutboundMessageType = [CL.TDSMessageType]::PreLogin
     $writeBuffer = [Convert]::FromBase64String($preLoginMessage)
     $stream.Write($writeBuffer, 0, $writeBuffer.Length)
     $readBuffer = New-Object System.Byte[] 4096
     $bytesRead = $stream.Read($readBuffer, 0, $readBuffer.Length)
-    $sslStream = New-Object System.Net.Security.SslStream($stream, $true)
+    $sslStream = New-Object System.Net.Security.SslStream($stream, $true, {$true})
     $sslStream.AuthenticateAsClient($hostName)
     $certificate = $sslStream.RemoteCertificate
-    [System.IO.File]::WriteAllBytes($publicCertificateFile,$certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert))    
+    [System.IO.File]::WriteAllBytes($publicCertificateFile,$certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert))
 }
 
 

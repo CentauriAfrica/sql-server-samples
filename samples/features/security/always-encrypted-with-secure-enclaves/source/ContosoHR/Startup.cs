@@ -28,7 +28,7 @@ namespace ContosoHR
         public void ConfigureServices(IServiceCollection services)
         {
             string s = Configuration.GetConnectionString("ContosoHRDatabase");
-            services.AddDbContext<ContosoHRContext>(options => 
+            services.AddDbContext<ContosoHRContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("ContosoHRDatabase")));
             services.AddControllers();
             services.AddRazorPages();
@@ -72,7 +72,7 @@ namespace ContosoHR
                 // If the application uses a managed identity to talk to Azure SQL Database, use the managed identity for Azure Key Vault too.
                 tokenCredential = new ManagedIdentityCredential();
             }
-            else { 
+            else {
                 // Assume a managed identity is not available to the app. Instead, use a client id/secret to authenticate to Azure Key Vault.
                 // Fetch client id, secret, tenant id from the configuration.
                 // It is recommended you specify these parameters in secrets.json.

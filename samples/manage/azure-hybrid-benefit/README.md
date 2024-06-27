@@ -3,12 +3,12 @@ services: Azure SQL
 platforms: Azure
 author: anosov1960
 ms.author: sashan
-ms.date: 3/27/2021
+ms.date: 01/07/2023
 ---
 
 # Overview
 
-This script provides a simple solution to analyze and track the consolidated utilization of SQL Server licenses by all of the SQL resources in a specific subscription or the entire account. By default, the script scans all subscriptions the user account has access to. Alternatively, you can specify a single subscription or a .CSV file with a list of subscriptions. 
+This script provides a simple solution to analyze and track the consolidated utilization of SQL Server licenses by all of the SQL resources in a specific subscription or the entire account. By default, the script scans all subscriptions the user account has access to. Alternatively, you can specify a single subscription or a .CSV file with a list of subscriptions.
 
 | **Category** | **Description** |
 |:--|:--|
@@ -16,9 +16,10 @@ This script provides a simple solution to analyze and track the consolidated uti
 |Time|Time of the scan|
 |Subscription name|The name of the subscription|
 |Subscription ID|The unique subscription ID|
+|AHB NCs|Total normalized cores covered by Azure hybrid benefit|
+|PAYG NCs|Total normalized cores not covered by Azure hybrid benefit|
 |AHB Std vCores|Total vCores used by Standard level SQL services (General Purpose service tier or SQL Server Standard edition) that have Azure hybrid benefit enabled|
-|AHB Ent vCores|Total vCores used by Premium level SQL services (Business Critical  service tier or SQL Server Enterprise edition) that have Azure hybrid benefit enabled|
-|PAYG Std vCores|Total vCores used by Standard level SQL services (General Purpose service tier or SQL Server Standard edition) that are billed using the pay-as-you-go method|
+|AHB Ent vCores|Total vCores used by Premium level SQL services (Business Critical  service tier or SQL Server Enterprise edition) that have Azure hybrid benefit enabled||PAYG Std vCores|Total vCores used by Standard level SQL services (General Purpose service tier or SQL Server Standard edition) that are billed using the pay-as-you-go method|
 |PAYG Ent vCores|Total vCores used by Premium level SQL services (Business Critical  service tier or SQL Server Enterprise edition) that are billed using the pay-as-you-go method|
 |HADR Std  vCores|Total vCores used by HADR replicas running SQL Server Standard edition|
 |HADR Ent vCores|Total vCores used by HADR replicas running SQL Server Enterprise edition|
@@ -28,12 +29,12 @@ This script provides a simple solution to analyze and track the consolidated uti
 |Unknown vCores|Total vCores used by Azure SQL Server resources with an unknown edition or service tier|
 
 The following resources are in scope for the license utilization analysis:
-- Azure SQL databases (vCore-based purchasing model only) 
+- Azure SQL databases (vCore-based purchasing model only)
 - Azure SQL elastic pools (vCore-based purchasing model only)
 - Azure SQL managed instances
 - Azure SQL instance pools
 - Azure Data Factory SSIS integration runtimes
-- SQL Servers in Azure virtual machines 
+- SQL Servers in Azure virtual machines
 - SQL Servers in Azure virtual machines hosted in Azure dedicated host
 
 >[!NOTE]
@@ -41,11 +42,12 @@ The following resources are in scope for the license utilization analysis:
 > - For IaaS workloads, such as SQL Server in Virtual Machines or SSIS integration runtimes, each vCPU is counted as one vCore.
 > - For PaaS workloads, each vCore of Business Critical service tier is counted as one Enterprise vCore and each vCore of General Purpose service tier is counted as one Standard vCore.
 > - In the DTU-based purchasing model, the SQL license cost is built into the individual SKU prices. These resources are not eligible for Azure Hybrid Benefit or HADR benefit, and therefore are not in scope of the tool.
-> - You must be at least a *Reader* of each subscription you scan. 
-> - To report unregistered vCores, you must be a subscription *Contributor* or *Owner*, otherwise this column will show a zero value. Selecting this option will substantially increase the execution time, especially for the   subscriptions with large numbers of virtual machines.
-> - The values AHB ECs and PAYG ECs are reserved for the future use and should be ignored
 
-# Launching the script 
+# Required permissions
+
+You must be at least a *Reader* of each subscription you scan. If you report unregistered vCores, you must have the `Microsoft.Compute/virtualMachines/runCommand/action` permission. The [Virtual Machine Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#virtual-machine-contributor) role and higher levels have this permission. If you don't have this permission, the tool will shows zero value for unregistered cores.
+
+# Launching the script
 
 The script accepts the following command line parameters:
 
@@ -53,7 +55,7 @@ The script accepts the following command line parameters:
 |:--|:--|:--|
 |-SubId|subscription_id *or* a file_name|Optional: subscription id or a .csv file with the list of subscriptions<sup>1</sup>|
 |-UseInRunbook| \$True or \$False (default) |Optional: must be $True when executed as a Runbook|
-|-Server|[protocol:]server[instance_name][,port]|Optional: SQL Server connection endpoint to save data to the database.<br>  Must be accompanied by -Database and -Cred | 
+|-Server|[protocol:]server[instance_name][,port]|Optional: SQL Server connection endpoint to save data to the database.<br>  Must be accompanied by -Database and -Cred |
 |-Database|database_name|Optional: database name where data will be saved.<br>  Must be accompanied by -Server and -Cred|
 |-Cred|credential_object|Optional: value of type PSCredential to securely pass database user and password|
 |-FilePath|csv_file_name|Optional: filename where the data will be saved in a .csv format. Ignored if database parameters are specified|
@@ -61,9 +63,12 @@ The script accepts the following command line parameters:
 
 <sup>1</sup>You can create a .csv file using the following command and then edit to remove the subscriptions you don't  want to scan.
 ```PowerShell
-Get-AzSubscription | Export-Csv .\mysubscriptions.csv -NoTypeInformation 
+Get-AzSubscription | Export-Csv .\mysubscriptions.csv -NoTypeInformation
 ```
 If both database parameters and *FilePath* are omitted, the script will write the results to a `.\sql-license-usage.csv` file. The file is created automatically. If the file already exists, the consecutive scans will append the results to it. If the database parameters are specified, the data will be saved in a *Usage-per-subscription* table. If the table doesn't exist, it will be created automatically.
+
+>[!IMPORTANT]
+> Selecting `-ShowUnregistered` option will substantially increase the execution time, especially for the   subscriptions with large numbers of virtual machines.
 
 ## Example 1
 
@@ -87,7 +92,7 @@ The following command will scan all the subscriptions the user has access to and
 
 ```PowerShell
 $cred = Get-Credential
-.\sql-license-usage.ps1 -Server my-westus2-server.database.windows.net -Database sql-license-usage -Cred $cred 
+.\sql-license-usage.ps1 -Server my-westus2-server.database.windows.net -Database sql-license-usage -Cred $cred
 ```
 
 ## Example 4
@@ -99,7 +104,7 @@ $params =@{
     Server="my-westus2-server.database.windows.net";
     Database="sql-license-usage";
     Cred=Get-Credential;
-}    
+}
 .\sql-license-usage.ps1 @params
 ```
 
@@ -127,7 +132,7 @@ To run the script in the Cloud Shell, use the following steps:
 
 # Running the script as a Azure runbook
 
-You can track your license utilization over time by running this script on schedule as a runbook. To set it up using Azure Portal, follow these steps. 
+You can track your license utilization over time by running this script on schedule as a runbook. To set it up using Azure Portal, follow these steps.
 
 1. Open a command shell on your device and run this command. It will copy the script to your local folder.
 ```console
@@ -154,7 +159,7 @@ curl https://raw.githubusercontent.com/microsoft/sql-server-samples/master/sampl
     - USEINRUNBOOKS. Select True to activate the logic that authenticates the runbook using the *Azure Run As Account*.
 1. Click **OK** to link to the schedule and **OK** again to create the job.
 
-For more information about the runbooks, see the [Runbook tutorial](https://docs.microsoft.com/en-us/azure/automation/learn/automation-tutorial-runbook-textual-powershell) 
+For more information about the runbooks, see the [Runbook tutorial](https://docs.microsoft.com/en-us/azure/automation/learn/automation-tutorial-runbook-textual-powershell)
 
 >[!IMPORTANT]
 > When running the script as a runbook, it is necessary to save the data in a database so that the results could be analyzed outside of the runbook.

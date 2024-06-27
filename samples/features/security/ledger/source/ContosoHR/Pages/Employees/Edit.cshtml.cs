@@ -68,7 +68,7 @@ namespace ContosoHR.Pages.Employees
                 salary.Value = Employee.Salary;
 
                 System.FormattableString query = $"UPDATE [dbo].[Employees] SET [SSN] = {ssn}, [FirstName] = {Employee.FirstName}, [LastName] = {Employee.LastName}, [Salary] = {salary} WHERE [EmployeeID] = {Employee.EmployeeId}";
-                string queryString = $"UPDATE [dbo].[Employees] SET [SSN] = '{Employee.Ssn}', [FirstName] = '{Employee.FirstName}', [LastName] = '{Employee.LastName}', [Salary] = '{Employee.Salary}' WHERE [EmployeeID] = '{Employee.EmployeeId}'"; 
+                string queryString = $"UPDATE [dbo].[Employees] SET [SSN] = '{Employee.Ssn}', [FirstName] = '{Employee.FirstName}', [LastName] = '{Employee.LastName}', [Salary] = '{Employee.Salary}' WHERE [EmployeeID] = '{Employee.EmployeeId}'";
                 await _context.Database.ExecuteSqlInterpolatedAsync(query);
                 await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO [dbo].[AuditEvents] ([UserName], [Query]) VALUES ({userName}, {queryString})");
             }

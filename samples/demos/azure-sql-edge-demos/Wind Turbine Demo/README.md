@@ -2,11 +2,11 @@
 
 ## Overview
 
-The Azure SQL Edge demo is based on a Contoso Renewable Energy, a wind turbine farm that leverages Azure SQL Edge for data processing onboard the generator. 
+The Azure SQL Edge demo is based on a Contoso Renewable Energy, a wind turbine farm that leverages Azure SQL Edge for data processing onboard the generator.
 
-The demo will walk you through resolving an alert being raised due to wind turbulence being detected at the device. You will train a model and deploy it to SQL DB Edge that will correct the detected wind wake and ultimately optimize power output. 
+The demo will walk you through resolving an alert being raised due to wind turbulence being detected at the device. You will train a model and deploy it to SQL DB Edge that will correct the detected wind wake and ultimately optimize power output.
 
-We will also look at some of the security features available with Azure SQL Edge. 
+We will also look at some of the security features available with Azure SQL Edge.
 
 ## Wind Turbine Data Explanation for the Wake Detection model
 
@@ -41,7 +41,7 @@ The above dataset definition contains trends that will enable us to detect the e
 1.	Overall wind farm and turbine wind direction are both between 40° - 45° degrees.
 1.	TurbineSpeedStdDev and WindSpeedStdDev have been too far apart for greater than a minute.
 
-The wind turbine will experience wake when the turbine wind direction is between 40° - 45° degrees and the values of TurbineSpeedStdDev and WindSpeedStdDev are not similar. For example: 
+The wind turbine will experience wake when the turbine wind direction is between 40° - 45° degrees and the values of TurbineSpeedStdDev and WindSpeedStdDev are not similar. For example:
 * Wake Present:
     * TurbineWindDirection = 43.5°
     * TurbineSpeedStdDev = 8.231
@@ -65,7 +65,7 @@ TODO ^^ Need to update the ARM location
 
 Follow the steps to deploy the required Azure resources:
 
-**BASICS**  
+**BASICS**
 
    - **Subscription**: Select the Subscription.
    - **Resource group**:  Click on 'Create new' and provide a unique name for the Resource Group
@@ -78,7 +78,7 @@ Follow the steps to deploy the required Azure resources:
 
 Some resources require some extra configuration.
 
-#### Upload SQL DACPAC 
+#### Upload SQL DACPAC
 
 The Edge Module will require access the DACPAC package in order to setup the database.
 
@@ -89,7 +89,7 @@ The Edge Module will require access the DACPAC package in order to setup the dat
 1. Click the **Upload** button.
 1. Click the **Select a file** input and select the file under the project folder: `sql/turbine-sensor-db-dacpac.zip`.
 1. Click the **Upload** button.
-1. Once the file is uploaded, click on it. 
+1. Once the file is uploaded, click on it.
 1. Click **Generate SAS** tab.
 1. Update the **Expiry** year to 2050.
 1. Click **Generate SAS token and URL**
@@ -144,8 +144,8 @@ As security settings were deployed as part of the DACPAC package, below is a **r
         CREATE SCHEMA Security;
         GO
         ```
-    *  Add the function that will ensure each query is authorized based on Sensor Type/User.       
-  
+    *  Add the function that will ensure each query is authorized based on Sensor Type/User.
+
 
         ```sql
         /**
@@ -173,7 +173,7 @@ As security settings were deployed as part of the DACPAC package, below is a **r
         WITH (STATE = ON);
         ```
 
-    
+
 
 #### Notebook Setup
 
@@ -232,40 +232,40 @@ We need configure values within the notebook before being able to execute it:
 1. Click the **Create** button and wait for the compute to be created.
     > **Note**: This process can take several minutes; wait until status of **compute** is `Running`.
 1. Click the **Edit** dropdown and select the **Edit in Jupyter** option.
-    > **Note**: If required, login with your Azure credentials.    
+    > **Note**: If required, login with your Azure credentials.
 1. Replace the values within the **Setup Azure ML** cell with the values you obtained in the **Notebook files upload** section:
     ```
     interactive_auth = InteractiveLoginAuthentication(tenant_id="<tenant_id>")
     # Get instance of the Workspace and write it to config file
     ws = Workspace(
-        subscription_id = '<subscription_id>', 
-        resource_group = '<resource_group>', 
+        subscription_id = '<subscription_id>',
+        resource_group = '<resource_group>',
         workspace_name = '<workspace_name>',
         auth = interactive_auth)
     ```
 1. Click **File** > **Save and Checkpoint** from the menu.
 1. Select the **Install requirements** cell and click **Run** from the menu, wait for the script to execute before continuing.
 1. Select the **Setup Azure ML** cell and click **Run** from the menu.
-    > **IMPORTANT**: Observe the output to **authenticate** via the URL provided (https://microsoft.com/devicelogin).  
+    > **IMPORTANT**: Observe the output to **authenticate** via the URL provided (https://microsoft.com/devicelogin).
 
-1. From here, **Run** the remaining cells sequentially until you have executed the notebook. 
+1. From here, **Run** the remaining cells sequentially until you have executed the notebook.
     > **IMPORTANT**: Remember to wait for each cell to execute before continuing.
 1. Go back to the azure resource group and click the **Storage Account** resource.
 1. Click the **Containers** option in the left menu.
 1. Click the container in the list with a name like: `azureml-blobstore-{guid}`.
 1. A new file with the name `windturbinewake.model.onnx` will be in the container.
-1. Click the `windturbinewake.model.onnx` file 
+1. Click the `windturbinewake.model.onnx` file
 1. Click the **Generate SAS** tab option.
 1. Change the **Expiry** Year to 2050.
 1. Click the **Generate SAS token and URL** button and wait for the SAS to be generated.
 1. Copy the **Blob SAS URL** value for later in the demo usage section.
 
-    > **IMPORTANT**: As this process does take some time, once you have saved your model to blob storage, you will not be required to execute this every time you run through the demo. Showing the notebook flow may be adequate for demo purposes. You will just need the blob SAS for the **SQL DB Edge Demo Usage** section later in the document. 
+    > **IMPORTANT**: As this process does take some time, once you have saved your model to blob storage, you will not be required to execute this every time you run through the demo. Showing the notebook flow may be adequate for demo purposes. You will just need the blob SAS for the **SQL DB Edge Demo Usage** section later in the document.
 
 
 #### Device Setup
 
-In this section, we will set up an Edge device within our IoT Hub instance. 
+In this section, we will set up an Edge device within our IoT Hub instance.
 
 ##### Create a new Edge device
 
@@ -300,7 +300,7 @@ In this section, we will set up an Edge device within our IoT Hub instance.
 1. Select **Purchase** to begin the deployment.
 
 ##### SSH into the VM - Optional
-1. Once the deployment is complete, go back to the **Resource Group** you created earlier. 
+1. Once the deployment is complete, go back to the **Resource Group** you created earlier.
 1. Select the **Virtual Machine** resource.
     > **Note**: Take note of the machine name, this should be in the format vm-0000000000000. Also, take note of the associated DNS Name, which should be in the format `<dnsLabelPrefix>.<location>.cloudapp.azure.com`.
     The DNS Name can be obtained from the Overview section of the newly deployed virtual machine within the Azure portal.
@@ -308,7 +308,7 @@ In this section, we will set up an Edge device within our IoT Hub instance.
 
 
 1. If you want to SSH into this VM after setup, use the associated DNS Name with the command: `ssh <adminUsername>@<DNS_Name>`. You can use the password you created in the previous step.
-    > **IMPORTANT**: There is an optional section at the end of this document showing some example commands. 
+    > **IMPORTANT**: There is an optional section at the end of this document showing some example commands.
 
 
 ##### Setup Visual Studio Code Development Environment
@@ -391,7 +391,7 @@ Investigate Turbine Issue
 1. Click **view** on the alert. A query is ran against the SQL DB Edge instance.
 1. Notice the Operator can't see the Security Alert due to as the permissions we set earlier.
 1. You can notice a drop in the **Power Generated** chart.
-1. Click the **Environmental** button. 
+1. Click the **Environmental** button.
 1. You can notice the **Wind Speed and Direction** at the turbine is a lot more turbulent than the rest of the Wind Farm. This could indicate wind wake.
 
 Now we need to run our notebook in order to generate the Onnx model that we will use to resolve the alert.
@@ -413,7 +413,7 @@ Now we have our wind adapt model, lets update the module to correct the turbine.
 1. You will notice a notification indicating the alert has been resolved.
 1. Click on the **Resfresh** button.
 1. Notice the turbine **Wind Speed and Direction** has stabilized.
-1. If you go back to the dashboard view. You will notice Unit 34 no longer has an alert. 
+1. If you go back to the dashboard view. You will notice Unit 34 no longer has an alert.
 
 
 #### Restart the demo
@@ -452,7 +452,7 @@ Here we will see how to run commands into to the device virtual machine from the
     > **Note**: Default password is: `M1cr0s0ft2020`
 
 6. Run the following command to see the list of modules running: `sudo iotedge list`
-    > **Note**: You can should be able to see the `AzureSQLDatabaseEdge` and `SensorModule` we deployed earlier. 
+    > **Note**: You can should be able to see the `AzureSQLDatabaseEdge` and `SensorModule` we deployed earlier.
 
 7. Run the following command to see the logs of the **Sensor Module**: `sudo iotedge logs SensorModule`
     *   Following we will connect with the edge sql server to run a simple query by doing:

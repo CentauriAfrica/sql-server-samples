@@ -83,7 +83,7 @@ def save_model(clf):
   run.upload_file(model_file_name, os.path.join(OUTPUT_DIR, model_file_name))
 
   # Register the model
-  registered_model = run.register_model(model_name='wind_turbine_model', 
+  registered_model = run.register_model(model_name='wind_turbine_model',
                                         model_path=model_file_name,
                                         model_framework=Model.Framework.SCIKITLEARN,
                                         model_framework_version=sklearn.__version__,

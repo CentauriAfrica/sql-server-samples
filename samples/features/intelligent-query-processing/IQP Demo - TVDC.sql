@@ -3,7 +3,7 @@
 
 -- See https://aka.ms/IQP for more background
 
--- Demo scripts: https://aka.ms/IQPDemos 
+-- Demo scripts: https://aka.ms/IQPDemos
 
 -- This demo is on SQL Server 2019 and Azure SQL DB
 
@@ -19,7 +19,7 @@ GO
 USE [WideWorldImportersDW];
 GO
 
-DECLARE @Order TABLE 
+DECLARE @Order TABLE
 	([Order Key] BIGINT NOT NULL,
 	 [Quantity] INT NOT NULL
 	);
@@ -48,7 +48,7 @@ GO
 USE [WideWorldImportersDW]
 GO
 
-DECLARE @Order TABLE 
+DECLARE @Order TABLE
 	([Order Key] BIGINT NOT NULL,
 	 [Quantity] INT NOT NULL
 	);

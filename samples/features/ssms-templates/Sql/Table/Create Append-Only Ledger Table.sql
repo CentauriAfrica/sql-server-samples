@@ -1,10 +1,10 @@
 -- ==============================
 -- Create Append-Only Ledger Table Template
 -- Use the Specify Values for Template Parameters command (Ctrl-Shift-M) to fill in the parameter values below.
--- 
+--
 -- For more details on ledger tables please refer to MSDN documentation:
 -- https://docs.microsoft.com/azure/azure-sql/database/ledger-overview
--- 
+--
 -- To learn more how to use append-only ledger tables in your applications:
 -- https://docs.microsoft.com/azure/azure-sql/database/ledger-append-only-ledger-tables
 -- ==============================

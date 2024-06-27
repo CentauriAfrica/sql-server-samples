@@ -6,7 +6,7 @@ products:
 - azure-sql-database	
 ---
 
-# Developing applications with C# and SQL Server 
+# Developing applications with C# and SQL Server
 
 Pick a platform below to get started:
 * [macOS](https://github.com/Microsoft/sql-server-samples/tree/master/samples/tutorials/c%23/macOS)

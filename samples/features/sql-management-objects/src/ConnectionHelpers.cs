@@ -4,7 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Linq;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -98,7 +99,7 @@ namespace Microsoft.SqlServer.SmoSamples
             var path = Environment.GetEnvironmentVariable("RESULTS_FOLDER");
             if (string.IsNullOrEmpty(path))
             {
-                path = context.Properties.ContainsKey("resultsFolder") ? context.Properties["resultsFolder"].ToString() : null;
+                path = context.Properties.Keys.Cast<string>().Contains("resultsFolder") ? context.Properties["resultsFolder"].ToString() : null;
             }
             if (string.IsNullOrEmpty(path))
             {

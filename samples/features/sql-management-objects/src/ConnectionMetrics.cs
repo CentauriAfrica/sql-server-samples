@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -75,7 +76,7 @@ namespace Microsoft.SqlServer.SmoSamples
             }
             // If running these tests in a container you may need to set a specific port
             // and expose that port in the dockerfile
-            var port = testContext.Properties.ContainsKey("proxyPort")
+            var port = testContext.Properties.Keys.Cast<string>().Contains("proxyPort")
                 ? Convert.ToInt32(testContext.Properties["proxyPort"])
                 : 0;
             var sqlConnection = new SqlConnection(proxy.Initialize(port));

@@ -1,0 +1,38 @@
+{
+  "version": "1.0.2",
+  "buildNumber": 2,
+  "projects": {
+    "csharp": {
+      "assemblyVersion": "1.0.2.2",
+      "fileVersion": "1.0.2.2"
+    },
+    "nodejs": {
+      "version": "1.0.2"
+    },
+    "javascript": {
+      "bootstrap": "3.3.7",
+      "q": "1.4.1"
+    }
+  },
+  "versioningStrategy": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0,
+    "buildIncrement": "patch"
+  },
+  "lastUpdated": "2025-08-17T16:13:31.575Z",
+  "buildHistory": [
+    {
+      "version": "1.0.1",
+      "buildNumber": 1,
+      "timestamp": "2025-08-17T16:10:50.649Z",
+      "strategy": "patch"
+    },
+    {
+      "version": "1.0.2",
+      "buildNumber": 2,
+      "timestamp": "2025-08-17T16:13:31.575Z",
+      "strategy": "patch"
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+name: Version Management
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version_strategy:
+        description: 'Version increment strategy'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  version-management:
+    name: Update Version Numbers
+    runs-on: ubuntu-latest
+    
+    # Only run on pushes to main branches, releases, or manual triggers
+    if: >
+      github.event_name == 'release' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && (
+        github.ref == 'refs/heads/main' ||
+        github.ref == 'refs/heads/master' ||
+        github.ref == 'refs/heads/develop'
+      ))
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Fetch full history for version detection
+        fetch-depth: 0
+        # Use a token that can push back to the repository
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+    
+    - name: Run Version Management
+      id: version
+      run: |
+        # Make scripts executable
+        chmod +x ./update-versions.js
+        chmod +x ./build-integration.js
+        
+        # Run build integration
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # Manual trigger with specific strategy
+          node ./update-versions.js "${{ github.event.inputs.version_strategy }}"
+          echo "strategy=${{ github.event.inputs.version_strategy }}" >> $GITHUB_OUTPUT
+        else
+          # Automatic build integration
+          node ./build-integration.js
+        fi
+        
+        # Get the new version from the config file
+        NEW_VERSION=$(node -e "console.log(require('./version.json').version)")
+        BUILD_NUMBER=$(node -e "console.log(require('./version.json').buildNumber)")
+        
+        echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+        
+        echo "✅ Version updated to: $NEW_VERSION (Build $BUILD_NUMBER)"
+    
+    - name: Commit version changes
+      run: |
+        # Add changed files
+        git add version.json
+        git add -A "**/*AssemblyInfo.cs"
+        git add -A "**/*.csproj"
+        git add -A "**/package.json"
+        git add -A "composer.json"
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No version changes to commit"
+        else
+          git commit -m "🔖 Bump version to ${{ steps.version.outputs.version }} (Build ${{ steps.version.outputs.build_number }})"
+          echo "Version changes committed"
+        fi
+    
+    - name: Create release tag
+      if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      run: |
+        TAG_NAME="v${{ steps.version.outputs.version }}"
+        
+        # Check if tag already exists
+        if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+          echo "Tag $TAG_NAME already exists"
+        else
+          git tag -a "$TAG_NAME" -m "Release version ${{ steps.version.outputs.version }} (Build ${{ steps.version.outputs.build_number }})"
+          echo "Created tag: $TAG_NAME"
+        fi
+    
+    - name: Push changes
+      if: github.event_name != 'pull_request'
+      run: |
+        # Push commits
+        git push origin HEAD:${{ github.ref_name }}
+        
+        # Push tags
+        git push origin --tags
+    
+    - name: Generate build summary
+      run: |
+        echo "## 📦 Version Management Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **New Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Number:** ${{ steps.version.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Strategy:** ${{ steps.version.outputs.strategy || 'auto-detected' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📁 Updated Files" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ AssemblyInfo.cs files" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ C# project files (.csproj)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Node.js package.json files" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Composer.json" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ JavaScript library versions" >> $GITHUB_STEP_SUMMARY
+
+  validate-versions:
+    name: Validate Version Consistency
+    runs-on: ubuntu-latest
+    needs: version-management
+    if: always()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Validate version consistency
+      run: |
+        echo "🔍 Validating version consistency across projects..."
+        
+        # Create validation script
+        cat > validate-versions.js << 'EOF'
+        const fs = require('fs');
+        const path = require('path');
+        
+        function findFiles(dir, pattern) {
+          const results = [];
+          function walk(currentDir) {
+            try {
+              const items = fs.readdirSync(currentDir);
+              items.forEach(item => {
+                const fullPath = path.join(currentDir, item);
+                const stat = fs.lstatSync(fullPath);
+                if (stat.isDirectory() && !['node_modules', '.git', 'bin', 'obj'].includes(item)) {
+                  walk(fullPath);
+                } else if (stat.isFile() && item.match(pattern)) {
+                  results.push(fullPath);
+                }
+              });
+            } catch (e) {
+              // Skip inaccessible directories
+            }
+          }
+          walk(dir);
+          return results;
+        }
+        
+        const config = JSON.parse(fs.readFileSync('version.json', 'utf8'));
+        const expectedVersion = config.version;
+        let errors = 0;
+        
+        console.log(`Expected version: ${expectedVersion}`);
+        console.log('');
+        
+        // Check package.json files
+        const packageFiles = findFiles('.', /package\.json$/);
+        console.log(`Checking ${packageFiles.length} package.json files...`);
+        packageFiles.forEach(file => {
+          try {
+            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (pkg.version && pkg.version !== expectedVersion) {
+              console.error(`❌ Version mismatch in ${file}: expected ${expectedVersion}, found ${pkg.version}`);
+              errors++;
+            } else if (pkg.version) {
+              console.log(`✅ ${file}`);
+            }
+          } catch (e) {
+            console.warn(`⚠️ Could not read ${file}: ${e.message}`);
+          }
+        });
+        
+        console.log('');
+        console.log(`Validation completed with ${errors} errors`);
+        if (errors > 0) {
+          process.exit(1);
+        }
+        EOF
+        
+        node validate-versions.js

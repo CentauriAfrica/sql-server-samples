@@ -111,6 +111,25 @@ The repository demonstrates three approaches to test isolation:
 - Verify ReportGenerator task configuration
 - Check that test execution includes `--collect:"XPlat Code Coverage"`
 
+**Entity Framework tests with Azure Storage dependencies fail**
+- Error: `Required properties '{'BlobAccountName', 'DbConnectionStringName', 'IconUrl'}' are missing`
+- Solution: Use Azurite (Azure Storage Emulator) for local testing:
+  ```bash
+  # Quick setup with script
+  ./samples/testing-patterns/azure-storage-tests/setup-azurite.sh
+  
+  # Or manual setup
+  npm install -g azurite
+  azurite --silent --location ./azurite
+  
+  # Or use Docker Compose
+  cd samples/testing-patterns/azure-storage-tests
+  docker-compose up -d
+  ```
+- Configure test entities with default values for required properties
+- Use test configuration from `samples/testing-patterns/azure-storage-tests/appsettings.Test.json`
+- See examples in `samples/testing-patterns/azure-storage-tests/` for implementation patterns
+
 ### Build Failures
 The repository was experiencing 13 test failures, which have been resolved:
 

@@ -1,7 +1,7 @@
 ![](../media/solutions-microsoft-logo-small.png)
 
 # About
-This source code is an example of buildling cloud-ready apps that are resilient to transient errors and failovers in the cloud. In particular, the example was made in C# with Azure SQL Managed Instance, but it can be applied to other SQL servers as well.
+This source code is an example of building cloud-ready apps that are resilient to transient errors and failovers in the cloud. In particular, the example was made in C# with Azure SQL Managed Instance, but it can be applied to other SQL Server instances as well.
 
 The accompanying article to this source code is the following: here: http://aka.ms/mifailover-techblog
 

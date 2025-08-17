@@ -30,10 +30,10 @@ Submitting a Spark job will start a Spark streaming session using spark-submit.
 
     The arguments to the jar file are:
 
-    1. server name - sql server to connect to read the table schema
+    1. server name - SQL Server to connect to read the table schema
     2. port number
-    3. username - sql server username for master instance
-    4. password - sql server password for master instance
+    3. username - SQL Server username for master instance
+    4. password - SQL Server password for master instance
     5. database name
     6. external table name
     7. Source directory for streaming. This must be a full URI - such as "hdfs:///clickstream_data"

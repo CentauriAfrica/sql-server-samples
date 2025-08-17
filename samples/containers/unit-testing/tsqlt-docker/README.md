@@ -119,7 +119,7 @@ jobs:
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
+
     services:
       sqlserver:
         image: chriseaton/adventureworks:latest
